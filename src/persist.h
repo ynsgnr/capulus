@@ -11,7 +11,7 @@ int pressure = 9;
 #define CRED_ADDR 2
 #define CHECK_VAL 128
 
-void load() {
+void persist_load() {
   EEPROM.begin(512);
   temp = EEPROM.read(TEMP_ADDR);
   pressure = EEPROM.read(PRESS_ADDR);
@@ -25,8 +25,7 @@ void load() {
   }
 }
 
-/** Store WLAN credentials to EEPROM */
-void store() {
+void persist_store() {
   EEPROM.begin(512);
   EEPROM.write(TEMP_ADDR, temp);
   EEPROM.write(PRESS_ADDR, pressure);
