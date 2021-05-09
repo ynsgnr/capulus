@@ -14,7 +14,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define TEXT_SIZE 2
 #define LINE_SIZE 8
-#define SECOND_LINE (TEXT_SIZE+1)*LINE_SIZE
+#define SECOND_LINE TEXT_SIZE*(LINE_SIZE*2)
 
 #define TEMP_TEXT "tempature"
 #define PRESS_TEXT "pressure"
@@ -24,8 +24,7 @@ void caplus_display_begin(){
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
-void capulus_display(int selected,int temp,int currentTemp,int pressure){
-    char str[3] = "";
+void capulus_display(int selected,int temp,float currentTemp,int pressure){
     display.clearDisplay();
     display.setTextSize(TEXT_SIZE); // Draw 2X-scale text
     display.setTextColor(SSD1306_WHITE);
@@ -35,19 +34,16 @@ void capulus_display(int selected,int temp,int currentTemp,int pressure){
         display.print(F(">"));
     }
     display.println(F(TEMP_TEXT));
-    itoa(currentTemp, str, 10);
-    display.print(FPSTR(str));
+    display.print(String(currentTemp, 2));
     display.print(F(SEPERATOR));
-    itoa(temp, str, 10);
-    display.println(FPSTR(str));
+    display.println(String(temp,10));
 
-    itoa(pressure, str, 10);
     display.setCursor(0, SECOND_LINE);
     if (selected == SELECT_PRESS){
         display.print(F(">"));
     }
     display.println(F(PRESS_TEXT));
-    display.println(FPSTR(str));
+    display.println(String(pressure,10));
 
     display.display();
 }
