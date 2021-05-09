@@ -11,7 +11,7 @@ int pressure = 9;
 #define CRED_ADDR 2
 #define CHECK_VAL 128
 
-void persist_load() {
+void get_persist() {
   EEPROM.begin(512);
   temp = EEPROM.read(TEMP_ADDR);
   pressure = EEPROM.read(PRESS_ADDR);
@@ -25,7 +25,7 @@ void persist_load() {
   }
 }
 
-void persist_store() {
+void store_persist() {
   EEPROM.begin(512);
   EEPROM.write(TEMP_ADDR, temp);
   EEPROM.write(PRESS_ADDR, pressure);
