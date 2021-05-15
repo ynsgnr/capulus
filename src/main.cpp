@@ -24,29 +24,34 @@ void setup() {
 }
 
 int selected = SELECT_TEMP;
+int multiplier = 1;
 
 // the loop function runs over and over again forever
 void loop() {
   float currentTemp = read_temp();
-  Serial.println(currentTemp,3);
   if(!digitalRead(BUTTON_1)){
     if (selected == SELECT_TEMP){
       selected = SELECT_PRESS;
     }else{
       selected = SELECT_TEMP;
     }
-  } else if(!digitalRead(BUTTON_0)){
+  }
+  if(!digitalRead(BUTTON_0)){
+    multiplier++;
     if (selected == SELECT_TEMP){
-      temp++;
+      temp+=multiplier;
     }else{
-      pressure++;
+      pressure+=multiplier;
     }
   } else if (!digitalRead(BUTTON_2)){
+    multiplier++;
     if (selected == SELECT_TEMP){
-      temp--;
+      temp-=multiplier;
     }else{
-      pressure--;
+      pressure-=multiplier;
     }
+  }else{
+    multiplier = 1;
   }
   capulus_display(selected,temp,currentTemp,pressure);
   delay(300);
