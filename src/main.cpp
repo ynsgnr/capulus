@@ -1,9 +1,11 @@
 #include <Arduino.h>
 #include <persist.h>
 #include <display.h>
+#include <temp.sensor.h>
 
-#define INPUT_BUTTON 14
-#define LED_OUT 2
+#define BUTTON_0 2 //D4
+#define BUTTON_1 3 //RX
+#define BUTTON_2 16 //D0
 
 bool buttonState = true;
 
@@ -13,31 +15,39 @@ void setup() {
   Serial.begin(9600);
   delay(100);
   Serial.println("\nSetting up");
-  pinMode(LED_OUT, OUTPUT);
-  pinMode(INPUT_BUTTON, INPUT);
-  digitalWrite(INPUT_BUTTON, LOW);
-  persist_load();
+  get_persist();
   caplus_display_begin();
-  char tempStr[3];
-  itoa(temp, tempStr, 10);
-  Serial.println(tempStr);
+
+  pinMode(BUTTON_0,INPUT);
+  pinMode(BUTTON_1,INPUT);
+  pinMode(BUTTON_2,INPUT);
 }
+
+int selected = SELECT_TEMP;
 
 // the loop function runs over and over again forever
 void loop() {
-  int current = digitalRead(INPUT_BUTTON);
-  if (current == HIGH){
-    Serial.println("pressed");
-    buttonState = not buttonState;
-    //persist_store();
-    delay(300);
+  float currentTemp = read_temp();
+  Serial.println(currentTemp,3);
+  if(!digitalRead(BUTTON_1)){
+    if (selected == SELECT_TEMP){
+      selected = SELECT_PRESS;
+    }else{
+      selected = SELECT_TEMP;
+    }
+  } else if(!digitalRead(BUTTON_0)){
+    if (selected == SELECT_TEMP){
+      temp++;
+    }else{
+      pressure++;
+    }
+  } else if (!digitalRead(BUTTON_2)){
+    if (selected == SELECT_TEMP){
+      temp--;
+    }else{
+      pressure--;
+    }
   }
-  int currentTemp = random(255);
-  if (buttonState){
-    capulus_display(SELECT_TEMP,temp,currentTemp,pressure);
-    digitalWrite(LED_OUT, HIGH);
-  }else{
-    capulus_display(SELECT_PRESS,temp,currentTemp,pressure);
-    digitalWrite(LED_OUT, LOW);
-  }
+  capulus_display(selected,temp,currentTemp,pressure);
+  delay(300);
 }
