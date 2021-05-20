@@ -42,14 +42,14 @@ void CAPULUS_STATE::input(inputData input){
     }
     if(input.plus){
         multiplier++;
-        if (selected == SELECT_TEMP){
+        if (data.selected == SELECT_TEMP){
         data.temp+=multiplier;
         }else{
         data.pressure+=multiplier;
         }
     } else if (input.minus){
         multiplier++;
-        if (selected == SELECT_TEMP){
+        if (data.selected == SELECT_TEMP){
         data.temp-=multiplier;
         }else{
         data.pressure-=multiplier;

@@ -45,13 +45,17 @@ inputData CAPULUS_INPUT::read(){
         result.option = false;
         result.plus = false;
     }else if (RCALC(buttonValues,OPTIONSVAL)){
-        result.minus = true;
+        result.minus = false;
         result.option = true;
         result.plus = false;
     }else if (RCALC(buttonValues,PLUSVAL)){
-        result.minus = true;
+        result.minus = false;
         result.option = false;
         result.plus = true;
+    }else{
+        result.minus = false;
+        result.option = false;
+        result.plus = false;
     }
     if (!digitalRead(STEAMPIN)){
         result.steam = true;
