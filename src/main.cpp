@@ -20,7 +20,6 @@ int multiplier = 1;
 
 // the loop function runs over and over again forever
 void loop() {
-  Serial.println(analogRead(A0),10);
   float currentTemp = read_temp();
   inputData input = input_read(); 
   if(input.option){
@@ -48,4 +47,5 @@ void loop() {
     multiplier = 1;
   }
   capulus_display(selected,temp,currentTemp,pressure);
+  delay(100);
 }
