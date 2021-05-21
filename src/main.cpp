@@ -36,7 +36,9 @@ void loop() {
   auto now = millis();
   if(now-inputLastRefresh>INPUT_INTERVAL){
     inputLastRefresh+=INPUT_INTERVAL;
-    state.input(buttons.read());
+    inputData input = buttons.read();
+    if (input.any) shutdownTimer.start();
+    state.input(input);
     data = state.data();
     pid.setTarget(data.temp);
     brewTimer.setTimeOut(data.brewTimerSeconds*SECOND);
@@ -45,10 +47,10 @@ void loop() {
   if(now-tempLastRefresh>TEMP_INTERVAL){
     tempLastRefresh+=TEMP_INTERVAL;
     currentTemp = read_temp();
-    bool timedOut = shutdownTimer.timedOut();
-    display.print(data,currentTemp,timedOut);
+    bool sleep = shutdownTimer.timedOut();
+    display.print(data,currentTemp,sleep);
     pid.setCurrent(double(currentTemp));
-    if (pid.signal() && !timedOut) digitalWrite(HEATER_PIN,HIGH);
+    if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
     else digitalWrite(HEATER_PIN,LOW);
   }
 }

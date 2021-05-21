@@ -39,32 +39,41 @@ CAPULUS_BUTTON_INPUT::CAPULUS_BUTTON_INPUT(){
 }
 
 inputData CAPULUS_BUTTON_INPUT::read(){
+    result.any = false;
     auto buttonValues = analogRead(A0);
     if (RCALC(buttonValues,MINUSVAL)){
         result.minus = true;
         result.option = false;
         result.plus = false;
+        result.any = true;
     }else if (RCALC(buttonValues,OPTIONSVAL)){
         result.minus = false;
         result.option = true;
         result.plus = false;
+        result.any = true;
     }else if (RCALC(buttonValues,PLUSVAL)){
         result.minus = false;
         result.option = false;
         result.plus = true;
+        result.any = true;
     }else{
         result.minus = false;
         result.option = false;
         result.plus = false;
+        result.any = true;
     }
     if (!digitalRead(STEAMPIN)){
+        if (!result.steam) result.any = true;
         result.steam = true;
     }else{
+        if (result.steam) result.any = true;
         result.steam = false;
     }
     if (!digitalRead(BREWPIN)){
+        if (!result.brew) result.any = true;
         result.brew = true;
     }else{
+        if (result.brew) result.any = true;
         result.brew = false;
     }
     return result;

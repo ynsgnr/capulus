@@ -90,8 +90,8 @@ void CAPULUS_STATE::input(inputData input){
         sdata.shutdownTimerMinutes=currentVal;
         break;
     }
-    if (sdata.temp>MAX_TEMP)sdata.temp=MAX_TEMP;
-    if (sdata.pressure>MAX_PRESS)sdata.pressure=MAX_PRESS;
+    if (sdata.temp>MAX_TEMP) sdata.temp=MAX_TEMP;
+    if (sdata.pressure>MAX_PRESS) sdata.pressure=MAX_PRESS;
 }
 
 stateData CAPULUS_STATE::data(){return sdata;}

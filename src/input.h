@@ -7,5 +7,6 @@ struct inputData {
     bool plus;
     bool steam;
     bool brew;
+    bool any;
 };
 #endif
