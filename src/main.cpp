@@ -15,7 +15,7 @@ CAPULUS_BUTTON_INPUT buttons;
 CAPULUS_DISPLAY display;
 CAPULUS_PID pid;
 
-TIMER shutdownTimer;
+TIMER sleepTimer;
 TIMER brewTimer;
 
 int inputLastRefresh;
@@ -28,7 +28,7 @@ void setup(){
   buttons = CAPULUS_BUTTON_INPUT();
   display = CAPULUS_DISPLAY();
   pid = CAPULUS_PID();
-  shutdownTimer.start();
+  sleepTimer.start();
   pinMode(HEATER_PIN,OUTPUT);
 }
 
@@ -37,17 +37,17 @@ void loop() {
   if(now-inputLastRefresh>INPUT_INTERVAL){
     inputLastRefresh+=INPUT_INTERVAL;
     inputData input = buttons.read();
-    if (input.any) shutdownTimer.start();
+    if (input.any) sleepTimer.start();
     state.input(input);
     data = state.data();
     pid.setTarget(data.temp);
     brewTimer.setTimeOut(data.brewTimerSeconds*SECOND);
-    shutdownTimer.setTimeOut(data.shutdownTimerMinutes*MINUTE);
+    sleepTimer.setTimeOut(data.sleepTimerMinutes*MINUTE);
   }
   if(now-tempLastRefresh>TEMP_INTERVAL){
     tempLastRefresh+=TEMP_INTERVAL;
     currentTemp = read_temp();
-    bool sleep = shutdownTimer.timedOut();
+    bool sleep = sleepTimer.timedOut();
     display.print(data,currentTemp,sleep);
     pid.setCurrent(double(currentTemp));
     if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);

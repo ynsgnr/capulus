@@ -25,7 +25,7 @@ void CAPULUS_STATE::persist_load(){
   sdata.temp = EEPROM.read(TEMP_ADDR);
   sdata.pressure = EEPROM.read(PRESS_ADDR);
   sdata.brewTimerSeconds = EEPROM.read(BREW_TIMER_ADDR);
-  sdata.shutdownTimerMinutes = EEPROM.read(SHUTDOWN_TIMER_ADDR);
+  sdata.sleepTimerMinutes = EEPROM.read(SHUTDOWN_TIMER_ADDR);
   EEPROM.end();
   sdata.selected = 0;
 }
@@ -35,7 +35,7 @@ void CAPULUS_STATE::persist_save(){
   EEPROM.write(TEMP_ADDR, sdata.temp);
   EEPROM.write(PRESS_ADDR, sdata.pressure);
   EEPROM.write(BREW_TIMER_ADDR, sdata.brewTimerSeconds);
-  EEPROM.write(SHUTDOWN_TIMER_ADDR, sdata.shutdownTimerMinutes);
+  EEPROM.write(SHUTDOWN_TIMER_ADDR, sdata.sleepTimerMinutes);
   EEPROM.put(CRED_ADDR, sdata.ssid);
   EEPROM.put(CRED_ADDR+sizeof(sdata.ssid), sdata.password);
   EEPROM.write(CRED_ADDR+sizeof(sdata.ssid)+sizeof(sdata.password), CHECK_VAL);
@@ -61,16 +61,16 @@ void CAPULUS_STATE::input(inputData input){
     case SELECT_BREW_TIMER:
         currentVal=sdata.brewTimerSeconds;
         break;
-    case SELECT_SHUTDOWN_TIMER:
-        currentVal=sdata.shutdownTimerMinutes;
+    case SELECT_SLEEP_TIMER:
+        currentVal=sdata.sleepTimerMinutes;
         break;
     }
     if(input.plus){
-        multiplier+=diff;
         currentVal+=multiplier;
-    } else if (input.minus){
         multiplier+=diff;
+    } else if (input.minus){
         currentVal-=multiplier;
+        multiplier+=diff;
         if (currentVal<=0) currentVal = 0;
     }else{
         if (multiplier!=diff) persist_save();
@@ -86,12 +86,14 @@ void CAPULUS_STATE::input(inputData input){
     case SELECT_BREW_TIMER:
         sdata.brewTimerSeconds=currentVal;
         break;
-    case SELECT_SHUTDOWN_TIMER:
-        sdata.shutdownTimerMinutes=currentVal;
+    case SELECT_SLEEP_TIMER:
+        sdata.sleepTimerMinutes=currentVal;
         break;
     }
     if (sdata.temp>MAX_TEMP) sdata.temp=MAX_TEMP;
     if (sdata.pressure>MAX_PRESS) sdata.pressure=MAX_PRESS;
+    if (sdata.brewTimerSeconds>MAX_BREW_TIME) sdata.temp=MAX_BREW_TIME;
+    if (sdata.sleepTimerMinutes>MAX_SLEEP_TIME) sdata.pressure=MAX_SLEEP_TIME;
 }
 
 stateData CAPULUS_STATE::data(){return sdata;}

@@ -7,18 +7,20 @@
 #define SELECT_TEMP 0
 #define SELECT_PRESS 1
 #define SELECT_BREW_TIMER 2
-#define SELECT_SHUTDOWN_TIMER 3
+#define SELECT_SLEEP_TIMER 3
 #define INCREASE_SELECTED(selected) (selected+1)%4
 
 #define MAX_TEMP 110
 #define MAX_PRESS 15
+#define MAX_BREW_TIME 60 //seconds
+#define MAX_SLEEP_TIME 30 //minutes
 
 struct stateData{
     char ssid[32] = "";
     char password[32] = "";
     int temp = 90;
     double pressure = 9;
-    int shutdownTimerMinutes = 5;
+    int sleepTimerMinutes = 5;
     int brewTimerSeconds = 20;
     int selected;
 };
