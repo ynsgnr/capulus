@@ -14,18 +14,19 @@ CAPULUS_STATE::CAPULUS_STATE(){
 
 void CAPULUS_STATE::persist_load(){
   EEPROM.begin(512);
+  EEPROM.get(CRED_ADDR, sdata.ssid);
+  EEPROM.get(CRED_ADDR+sizeof(sdata.ssid), sdata.password);
+  int check = EEPROM.read(CRED_ADDR+sizeof(sdata.ssid)+sizeof(sdata.password));
+  if (check!=CHECK_VAL) {
+    sdata.ssid[0] = 0;
+    sdata.password[0] = 0;
+    return; //don't override default values if its first boot
+  }
   sdata.temp = EEPROM.read(TEMP_ADDR);
   sdata.pressure = EEPROM.read(PRESS_ADDR);
   sdata.brewTimerSeconds = EEPROM.read(BREW_TIMER_ADDR);
   sdata.shutdownTimerMinutes = EEPROM.read(SHUTDOWN_TIMER_ADDR);
-  EEPROM.get(CRED_ADDR, sdata.ssid);
-  EEPROM.get(CRED_ADDR+sizeof(sdata.ssid), sdata.password);
-  int check = EEPROM.read(CRED_ADDR+sizeof(sdata.ssid)+sizeof(sdata.password));
   EEPROM.end();
-  if (check!=CHECK_VAL) {
-    sdata.ssid[0] = 0;
-    sdata.password[0] = 0;
-  }
   sdata.selected = 0;
 }
 
