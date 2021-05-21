@@ -6,6 +6,7 @@
 #include <pid.h>
 
 #define INPUT_INTERVAL 250
+#define TEMP_INTERVAL 300
 #define HEATER_PIN 16
 
 CAPULUS_STATE state;
@@ -14,6 +15,8 @@ CAPULUS_DISPLAY display;
 CAPULUS_PID pid;
 
 int inputLastRefresh;
+int tempLastRefresh;
+float currentTemp;
 stateData data;
 
 void setup(){
@@ -32,9 +35,16 @@ void loop() {
     data = state.data();
     pid.setTarget(data.temp);
   }
-  float currentTemp = read_temp();
-  display.print(data,currentTemp);
-  pid.setCurrent(double(currentTemp));
-  if (pid.signal(millis())) digitalWrite(HEATER_PIN,HIGH);
-  else digitalWrite(HEATER_PIN,LOW);
+  if(now-tempLastRefresh>TEMP_INTERVAL){
+    tempLastRefresh+=TEMP_INTERVAL;
+    currentTemp = read_temp();
+    display.print(data,currentTemp);
+    pid.setCurrent(double(currentTemp));
+    if (pid.signal(millis())) {
+      digitalWrite(HEATER_PIN,HIGH);
+    }
+    else {
+      digitalWrite(HEATER_PIN,LOW);
+    }
+  }
 }
