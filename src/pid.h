@@ -9,10 +9,6 @@ public:
     void setCurrent(double);
     void setTarget(double);
     bool signal(unsigned long);
-private:
-    double setpoint, input, output, windowSize;
-    unsigned long windowStartTime;
-    PID capulusPID;
 };
 
 #endif
