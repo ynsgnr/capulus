@@ -60,7 +60,6 @@ inputData CAPULUS_BUTTON_INPUT::read(){
         result.minus = false;
         result.option = false;
         result.plus = false;
-        result.any = true;
     }
     if (!digitalRead(STEAMPIN)){
         if (!result.steam) result.any = true;
