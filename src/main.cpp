@@ -4,6 +4,7 @@
 #include <display.h>
 #include <input.buttons.h>
 #include <pid.h>
+#include <timer.h>
 
 #define INPUT_INTERVAL 250
 #define TEMP_INTERVAL 300
@@ -13,6 +14,9 @@ CAPULUS_STATE state;
 CAPULUS_BUTTON_INPUT buttons;
 CAPULUS_DISPLAY display;
 CAPULUS_PID pid;
+
+TIMER shutdownTimer;
+TIMER brewTimer;
 
 int inputLastRefresh;
 int tempLastRefresh;
@@ -24,6 +28,7 @@ void setup(){
   buttons = CAPULUS_BUTTON_INPUT();
   display = CAPULUS_DISPLAY();
   pid = CAPULUS_PID();
+  shutdownTimer.start();
   pinMode(HEATER_PIN,OUTPUT);
 }
 
@@ -34,13 +39,19 @@ void loop() {
     state.input(buttons.read());
     data = state.data();
     pid.setTarget(data.temp);
+    brewTimer.setTimeOut(data.brewTimerSeconds*SECOND);
+    shutdownTimer.setTimeOut(data.shutdownTimerMinutes*MINUTE);
+  }
+  if (shutdownTimer.timedOut()) {
+    digitalWrite(HEATER_PIN,LOW);
+    return;
   }
   if(now-tempLastRefresh>TEMP_INTERVAL){
     tempLastRefresh+=TEMP_INTERVAL;
     currentTemp = read_temp();
     display.print(data,currentTemp);
     pid.setCurrent(double(currentTemp));
-    if (pid.signal(millis())) digitalWrite(HEATER_PIN,HIGH);
+    if (pid.signal()) digitalWrite(HEATER_PIN,HIGH);
     else digitalWrite(HEATER_PIN,LOW);
   }
 }

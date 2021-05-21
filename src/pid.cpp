@@ -1,5 +1,6 @@
 #include "pid.h"
 #include <PID_v1.h>
+#include <Arduino.h>
 
 double setpoint, input, output, windowSize;
 unsigned long windowStartTime;
@@ -16,7 +17,8 @@ void CAPULUS_PID::setCurrent(double temp){input = temp;}
 
 void CAPULUS_PID::setTarget(double temp){setpoint = temp;}
 
-bool CAPULUS_PID::signal(unsigned long now){
+bool CAPULUS_PID::signal(){
+  unsigned long now = millis();
   if (windowStartTime == 0) windowStartTime = now;
   capulusPID.Compute();
   if (now - windowStartTime > windowSize) windowStartTime += windowSize;

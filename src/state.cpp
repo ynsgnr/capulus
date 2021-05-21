@@ -3,7 +3,9 @@
 
 #define TEMP_ADDR 0
 #define PRESS_ADDR 1
-#define CRED_ADDR 2
+#define BREW_TIMER_ADDR 2
+#define SHUTDOWN_TIMER_ADDR 3
+#define CRED_ADDR 4
 #define CHECK_VAL 128
 
 CAPULUS_STATE::CAPULUS_STATE(){
@@ -14,6 +16,8 @@ void CAPULUS_STATE::persist_load(){
   EEPROM.begin(512);
   sdata.temp = EEPROM.read(TEMP_ADDR);
   sdata.pressure = EEPROM.read(PRESS_ADDR);
+  sdata.brewTimerSeconds = EEPROM.read(BREW_TIMER_ADDR);
+  sdata.shutdownTimerMinutes = EEPROM.read(SHUTDOWN_TIMER_ADDR);
   EEPROM.get(CRED_ADDR, sdata.ssid);
   EEPROM.get(CRED_ADDR+sizeof(sdata.ssid), sdata.password);
   int check = EEPROM.read(CRED_ADDR+sizeof(sdata.ssid)+sizeof(sdata.password));
@@ -29,6 +33,8 @@ void CAPULUS_STATE::persist_save(){
   EEPROM.begin(512);
   EEPROM.write(TEMP_ADDR, sdata.temp);
   EEPROM.write(PRESS_ADDR, sdata.pressure);
+  EEPROM.write(BREW_TIMER_ADDR, sdata.brewTimerSeconds);
+  EEPROM.write(SHUTDOWN_TIMER_ADDR, sdata.shutdownTimerMinutes);
   EEPROM.put(CRED_ADDR, sdata.ssid);
   EEPROM.put(CRED_ADDR+sizeof(sdata.ssid), sdata.password);
   EEPROM.write(CRED_ADDR+sizeof(sdata.ssid)+sizeof(sdata.password), CHECK_VAL);
@@ -39,30 +45,48 @@ void CAPULUS_STATE::persist_save(){
 void CAPULUS_STATE::input(inputData input){
     if(input.option){
         sdata.selected = INCREASE_SELECTED(sdata.selected);
+        return;
+    }
+    int currentVal=0;
+    switch (sdata.selected){
+    case SELECT_TEMP:
+        currentVal=sdata.temp;
+        break;
+    case SELECT_PRESS:
+        currentVal=sdata.pressure;
+        break;
+    case SELECT_BREW_TIMER:
+        currentVal=sdata.brewTimerSeconds;
+        break;
+    case SELECT_SHUTDOWN_TIMER:
+        currentVal=sdata.shutdownTimerMinutes;
+        break;
     }
     if(input.plus){
         multiplier++;
-        if (sdata.selected == SELECT_TEMP){
-        sdata.temp+=multiplier;
-        }else{
-        sdata.pressure+=multiplier;
-        }
+        currentVal+=multiplier;
     } else if (input.minus){
         multiplier++;
-        if (sdata.selected == SELECT_TEMP){
-        sdata.temp-=multiplier;
-        }else{
-        sdata.pressure-=multiplier;
-        }
+        currentVal-=multiplier;
+        if (currentVal<=0) currentVal = 0;
     }else{
-        if (multiplier!=1){
-            persist_save();
-        }
+        if (multiplier!=1) persist_save();
         multiplier = 1;
+    }
+    switch (sdata.selected){
+    case SELECT_TEMP:
+        sdata.temp=currentVal;
+        break;
+    case SELECT_PRESS:
+        sdata.pressure=currentVal;
+        break;
+    case SELECT_BREW_TIMER:
+        sdata.brewTimerSeconds=currentVal;
+        break;
+    case SELECT_SHUTDOWN_TIMER:
+        sdata.shutdownTimerMinutes=currentVal;
+        break;
     }
 }
 
-
-stateData CAPULUS_STATE::data(){
-    return sdata;
-}
+stateData CAPULUS_STATE::data(){return sdata;}

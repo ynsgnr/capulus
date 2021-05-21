@@ -1,3 +1,6 @@
+#ifndef CAPULUS_TEMP_SENSOR_H
+#define CAPULUS_TEMP_SENSOR_H
+
 #include <max6675.h>
 
 #define ktcSO 15 //D8 
@@ -10,3 +13,5 @@ MAX6675 ktc(ktcCLK, ktcCS, ktcSO);
 float read_temp(){
     return ktc.readCelsius();
 }
+
+#endif

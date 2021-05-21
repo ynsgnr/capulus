@@ -8,7 +8,7 @@ public:
     CAPULUS_PID();
     void setCurrent(double);
     void setTarget(double);
-    bool signal(unsigned long);
+    bool signal();
 };
 
 #endif
