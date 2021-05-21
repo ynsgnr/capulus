@@ -40,11 +40,7 @@ void loop() {
     currentTemp = read_temp();
     display.print(data,currentTemp);
     pid.setCurrent(double(currentTemp));
-    if (pid.signal(millis())) {
-      digitalWrite(HEATER_PIN,HIGH);
-    }
-    else {
-      digitalWrite(HEATER_PIN,LOW);
-    }
+    if (pid.signal(millis())) digitalWrite(HEATER_PIN,HIGH);
+    else digitalWrite(HEATER_PIN,LOW);
   }
 }
