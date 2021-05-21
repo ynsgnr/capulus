@@ -2,6 +2,7 @@
 #include <temp.sensor.h>
 #include <state.h>
 #include <display.h>
+#include <input.buttons.h>
 
 CAPULUS_STATE state;
 CAPULUS_INPUT in;
