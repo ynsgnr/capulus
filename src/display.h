@@ -1,7 +1,7 @@
 #ifndef CAPULUS_DISPLAY_H
 #define CAPULUS_DISPLAY_H
 
-#include "output.h"
+#include <state.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -10,7 +10,7 @@
 class CAPULUS_DISPLAY{
     public:
         CAPULUS_DISPLAY();
-        void print(outputData,float);
+        void print(stateData,float);
 };
 
 #endif

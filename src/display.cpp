@@ -1,4 +1,5 @@
 #include "display.h"
+#include "state.h"
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -19,7 +20,7 @@ CAPULUS_DISPLAY::CAPULUS_DISPLAY(){
     capulus_display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
-void CAPULUS_DISPLAY::print(outputData data, float currentTemp ){
+void CAPULUS_DISPLAY::print(stateData data, float currentTemp ){
     capulus_display.clearDisplay();
     capulus_display.setTextSize(TEXT_SIZE); // Draw 2X-scale text
     capulus_display.setTextColor(SSD1306_WHITE);

@@ -28,7 +28,7 @@ Calculating Total R: (1/R1+1/R2+1/R3...)^-1
 #define BREWPIN 1 //TX
 
 
-CAPULUS_INPUT::CAPULUS_INPUT(){ 
+CAPULUS_BUTTON_INPUT::CAPULUS_BUTTON_INPUT(){ 
     //pinMode(STEAMPIN, INPUT);
     //pinMode(STEAMPIN, INPUT);
     result.minus = false;
@@ -38,7 +38,7 @@ CAPULUS_INPUT::CAPULUS_INPUT(){
     result.brew = false;
 }
 
-inputData CAPULUS_INPUT::read(){
+inputData CAPULUS_BUTTON_INPUT::read(){
     auto buttonValues = analogRead(A0);
     if (RCALC(buttonValues,MINUSVAL)){
         result.minus = true;

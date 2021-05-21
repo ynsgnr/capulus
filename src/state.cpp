@@ -12,47 +12,47 @@ CAPULUS_STATE::CAPULUS_STATE(){
 
 void CAPULUS_STATE::persist_load(){
   EEPROM.begin(512);
-  data.temp = EEPROM.read(TEMP_ADDR);
-  data.pressure = EEPROM.read(PRESS_ADDR);
-  EEPROM.get(CRED_ADDR, data.ssid);
-  EEPROM.get(CRED_ADDR+sizeof(data.ssid), data.password);
-  int check = EEPROM.read(CRED_ADDR+sizeof(data.ssid)+sizeof(data.password));
+  sdata.temp = EEPROM.read(TEMP_ADDR);
+  sdata.pressure = EEPROM.read(PRESS_ADDR);
+  EEPROM.get(CRED_ADDR, sdata.ssid);
+  EEPROM.get(CRED_ADDR+sizeof(sdata.ssid), sdata.password);
+  int check = EEPROM.read(CRED_ADDR+sizeof(sdata.ssid)+sizeof(sdata.password));
   EEPROM.end();
   if (check!=CHECK_VAL) {
-    data.ssid[0] = 0;
-    data.password[0] = 0;
+    sdata.ssid[0] = 0;
+    sdata.password[0] = 0;
   }
-  data.selected = 0;
+  sdata.selected = 0;
 }
 
 void CAPULUS_STATE::persist_save(){
   EEPROM.begin(512);
-  EEPROM.write(TEMP_ADDR, data.temp);
-  EEPROM.write(PRESS_ADDR, data.pressure);
-  EEPROM.put(CRED_ADDR, data.ssid);
-  EEPROM.put(CRED_ADDR+sizeof(data.ssid), data.password);
-  EEPROM.write(CRED_ADDR+sizeof(data.ssid)+sizeof(data.password), CHECK_VAL);
+  EEPROM.write(TEMP_ADDR, sdata.temp);
+  EEPROM.write(PRESS_ADDR, sdata.pressure);
+  EEPROM.put(CRED_ADDR, sdata.ssid);
+  EEPROM.put(CRED_ADDR+sizeof(sdata.ssid), sdata.password);
+  EEPROM.write(CRED_ADDR+sizeof(sdata.ssid)+sizeof(sdata.password), CHECK_VAL);
   EEPROM.commit();
   EEPROM.end();
 }
 
 void CAPULUS_STATE::input(inputData input){
     if(input.option){
-        data.selected = INCREASE_SELECTED(data.selected);
+        sdata.selected = INCREASE_SELECTED(sdata.selected);
     }
     if(input.plus){
         multiplier++;
-        if (data.selected == SELECT_TEMP){
-        data.temp+=multiplier;
+        if (sdata.selected == SELECT_TEMP){
+        sdata.temp+=multiplier;
         }else{
-        data.pressure+=multiplier;
+        sdata.pressure+=multiplier;
         }
     } else if (input.minus){
         multiplier++;
-        if (data.selected == SELECT_TEMP){
-        data.temp-=multiplier;
+        if (sdata.selected == SELECT_TEMP){
+        sdata.temp-=multiplier;
         }else{
-        data.pressure-=multiplier;
+        sdata.pressure-=multiplier;
         }
     }else{
         if (multiplier!=1){
@@ -63,6 +63,6 @@ void CAPULUS_STATE::input(inputData input){
 }
 
 
-outputData CAPULUS_STATE::output(){
-    return data;
+stateData CAPULUS_STATE::data(){
+    return sdata;
 }

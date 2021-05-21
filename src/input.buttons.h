@@ -3,9 +3,9 @@
 
 #include <input.h>
 
-class CAPULUS_INPUT{
+class CAPULUS_BUTTON_INPUT{
     public:
-        CAPULUS_INPUT();
+        CAPULUS_BUTTON_INPUT();
         inputData read();
     private:
         inputData result;
