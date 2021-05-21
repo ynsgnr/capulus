@@ -48,13 +48,15 @@ void CAPULUS_STATE::input(inputData input){
         sdata.selected = INCREASE_SELECTED(sdata.selected);
         return;
     }
-    int currentVal=0;
+    double currentVal=0;
+    double diff = 1;
     switch (sdata.selected){
     case SELECT_TEMP:
         currentVal=sdata.temp;
         break;
     case SELECT_PRESS:
         currentVal=sdata.pressure;
+        diff=0.1;
         break;
     case SELECT_BREW_TIMER:
         currentVal=sdata.brewTimerSeconds;
@@ -64,15 +66,15 @@ void CAPULUS_STATE::input(inputData input){
         break;
     }
     if(input.plus){
-        multiplier++;
+        multiplier+=diff;
         currentVal+=multiplier;
     } else if (input.minus){
-        multiplier++;
+        multiplier+=diff;
         currentVal-=multiplier;
         if (currentVal<=0) currentVal = 0;
     }else{
-        if (multiplier!=1) persist_save();
-        multiplier = 1;
+        if (multiplier!=diff) persist_save();
+        multiplier = diff;
     }
     switch (sdata.selected){
     case SELECT_TEMP:
@@ -88,6 +90,8 @@ void CAPULUS_STATE::input(inputData input){
         sdata.shutdownTimerMinutes=currentVal;
         break;
     }
+    if (sdata.temp>MAX_TEMP)sdata.temp=MAX_TEMP;
+    if (sdata.pressure>MAX_PRESS)sdata.pressure=MAX_PRESS;
 }
 
 stateData CAPULUS_STATE::data(){return sdata;}

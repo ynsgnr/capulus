@@ -10,7 +10,7 @@
 class CAPULUS_DISPLAY{
     public:
         CAPULUS_DISPLAY();
-        void print(stateData,float);
+        void print(stateData,float,bool);
 };
 
 #endif

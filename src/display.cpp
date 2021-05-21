@@ -9,20 +9,21 @@
 Adafruit_SSD1306 capulus_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define TEXT_SIZE 2
-#define LINE_SIZE 8
-#define SECOND_LINE TEXT_SIZE*(LINE_SIZE*2)
 
 #define TEMP_TEXT "temp"
 #define PRESS_TEXT "pressure"
+#define TIMEOUT_TEXT "auto shutdown enabled"
+#define RESTART_TEXT "please restart machin"
 #define SEPERATOR "-"
 
 CAPULUS_DISPLAY::CAPULUS_DISPLAY(){
     capulus_display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
-void CAPULUS_DISPLAY::print(stateData data, float currentTemp ){
+void CAPULUS_DISPLAY::print(stateData data, float currentTemp, bool timedOut){
     capulus_display.clearDisplay();
-    capulus_display.setTextSize(TEXT_SIZE); // Draw 2X-scale text
+    if (timedOut) capulus_display.setTextSize(TEXT_SIZE/2);
+    else capulus_display.setTextSize(TEXT_SIZE);
     capulus_display.setTextColor(SSD1306_WHITE);
     capulus_display.setCursor(0, 0);
     if (data.selected == SELECT_TEMP){
@@ -32,13 +33,17 @@ void CAPULUS_DISPLAY::print(stateData data, float currentTemp ){
     capulus_display.print(String(currentTemp, 2));
     capulus_display.print(F(SEPERATOR));
     capulus_display.println(String(data.temp,10));
-
-    capulus_display.setCursor(0, SECOND_LINE);
     if (data.selected == SELECT_PRESS){
         capulus_display.print(F(">"));
     }
     capulus_display.println(F(PRESS_TEXT));
-    capulus_display.println(String(data.pressure,10));
+    capulus_display.println(String(data.pressure,1));
+
+    if (timedOut){
+        capulus_display.println(F(""));
+        capulus_display.println(F(TIMEOUT_TEXT));
+        capulus_display.println(F(RESTART_TEXT));
+    }
 
     capulus_display.display();
 }

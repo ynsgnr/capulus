@@ -42,16 +42,13 @@ void loop() {
     brewTimer.setTimeOut(data.brewTimerSeconds*SECOND);
     shutdownTimer.setTimeOut(data.shutdownTimerMinutes*MINUTE);
   }
-  if (shutdownTimer.timedOut()) {
-    digitalWrite(HEATER_PIN,LOW);
-    return;
-  }
   if(now-tempLastRefresh>TEMP_INTERVAL){
     tempLastRefresh+=TEMP_INTERVAL;
     currentTemp = read_temp();
-    display.print(data,currentTemp);
+    bool timedOut = shutdownTimer.timedOut();
+    display.print(data,currentTemp,timedOut);
     pid.setCurrent(double(currentTemp));
-    if (pid.signal()) digitalWrite(HEATER_PIN,HIGH);
+    if (pid.signal() && !timedOut) digitalWrite(HEATER_PIN,HIGH);
     else digitalWrite(HEATER_PIN,LOW);
   }
 }
