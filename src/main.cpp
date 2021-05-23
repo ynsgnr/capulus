@@ -98,9 +98,9 @@ void loop() {
     if (buttonInput.steam) targetTemp = data.steamTemp;
     if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
     else digitalWrite(READY_LED_PIN,LOW);
-    if (sleep) display.printSleep();
-    else if (brewing) display.printRealtime(data, currentTemp, String(BREWING_TEXT), brewTimer.remaining()/SECOND);
-    else if (preinfusing) display.printRealtime(data, currentTemp, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND);
-    else display.printState(data,currentTemp);
+    if (sleep) display.sleep();
+    else if (brewing) display.realtime(data, currentTemp, data.pressure, String(BREWING_TEXT), brewTimer.remaining()/SECOND);
+    else if (preinfusing) display.realtime(data, currentTemp, data.preinfusionPressure, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND);
+    else display.state(data,currentTemp);
   }
 }

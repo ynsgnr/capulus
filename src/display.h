@@ -28,9 +28,9 @@
 class CAPULUS_DISPLAY{
     public:
         CAPULUS_DISPLAY();
-        void printState(stateData,float);
-        void printSleep();
-        void printRealtime(stateData data, float currentTemp, String currentState, unsigned long  remainingTime);
+        void state(stateData,float);
+        void sleep();
+        void realtime(stateData data, float currentTemp, float pressure, String currentState, unsigned long  remainingTime);
 };
 
 #endif

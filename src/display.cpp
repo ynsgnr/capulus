@@ -19,19 +19,20 @@ CAPULUS_DISPLAY::CAPULUS_DISPLAY(){
     capulus_display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
-void CAPULUS_DISPLAY::printRealtime(stateData data, float currentTemp,String currentState, unsigned long remainingTime){
+void CAPULUS_DISPLAY::realtime(stateData data, float currentTemp, float pressure, String currentState, unsigned long remainingTime){
     capulus_display.clearDisplay();
     capulus_display.setTextSize(TEXT_SIZE/2);
     capulus_display.setTextColor(SSD1306_WHITE);
     capulus_display.setCursor(0, 0);
     capulus_display.println(currentState);
     capulus_display.println(String(currentTemp, 2));
+    capulus_display.println(String(pressure, 2));
     capulus_display.print(String(remainingTime, 10));
     capulus_display.println(F(SECONDS_TEXT));
     capulus_display.display();
 }
 
-void CAPULUS_DISPLAY::printSleep(){
+void CAPULUS_DISPLAY::sleep(){
     capulus_display.clearDisplay();
     capulus_display.setTextSize(TEXT_SIZE);
     capulus_display.setTextColor(SSD1306_WHITE);
@@ -45,7 +46,7 @@ void CAPULUS_DISPLAY::printSleep(){
     capulus_display.display();
 }
 
-void CAPULUS_DISPLAY::printState(stateData data, float currentTemp){
+void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
     capulus_display.clearDisplay();
     capulus_display.setTextSize(TEXT_SIZE);
     capulus_display.setTextColor(SSD1306_WHITE);
