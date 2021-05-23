@@ -64,22 +64,22 @@ inputData CAPULUS_BUTTON_INPUT::read(){
         result.plus = false;
     }
     if (digitalRead(STEAMPIN)==LOW){
-        if (!result.steam) result.any = true;
+        result.any = result.any || !result.steam;
         result.steam = true;
         digitalWrite(STEAMPIN, HIGH);
         digitalWrite(0, HIGH);
     }else{
-        if (result.steam) result.any = true;
+        result.any = result.any || result.steam;
         result.steam = false;
         digitalWrite(0, LOW);
     }
     if (digitalRead(BREWPIN)==LOW){
-        if (!result.brew) result.any = true;
+        result.any = result.any || !result.brew;
         result.brew = true;
         digitalWrite(BREWPIN, HIGH);
         digitalWrite(0, HIGH);
     }else{
-        if (result.brew) result.any = true;
+        result.any = result.any || result.brew;
         result.brew = false;
         digitalWrite(0, LOW);
     }

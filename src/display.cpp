@@ -102,6 +102,8 @@ void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
         capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(STEAM_TEMP_TEXT));
         capulus_display.setTextSize(TEXT_SIZE);
+        capulus_display.print(String(currentTemp, 2));
+        capulus_display.print(F(SEPERATOR));
         capulus_display.println(String(data.steamTemp,10));
         break;
     case SELECT_SLEEP_TIMER:

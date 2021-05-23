@@ -58,6 +58,8 @@ void CAPULUS_STATE::input(inputData input){
         sdata.selected = INCREASE_SELECTED(sdata.selected);
         return;
     }
+    if (!input.any) return;
+    if (input.steam) sdata.selected = SELECT_STEAM_TEMP;
     double currentVal=0;
     double diff = 1;
     switch (sdata.selected){
