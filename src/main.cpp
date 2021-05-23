@@ -12,6 +12,7 @@
 
 #define INPUT_INTERVAL 250
 #define TEMP_INTERVAL 300
+#define DISPLAY_INTERVAL 100
 #define PUMP_PRESSURE 15
 #define MAX_PWM 1023
 #define TEMP_RANGE 2
@@ -27,9 +28,11 @@ TIMER preinfusionTimer;
 
 int inputLastRefresh;
 int tempLastRefresh;
+int dsiplayLastRefresh;
 float currentTemp;
 bool brewing = false;
 bool preinfusing = false;
+bool sleep = false;
 stateData data;
 inputData buttonInput;
 
@@ -84,17 +87,20 @@ void loop() {
   if(now-tempLastRefresh>TEMP_INTERVAL){
     tempLastRefresh+=TEMP_INTERVAL;
     currentTemp = read_temp();
+    pid.setCurrent(double(currentTemp));
+    sleep = sleepTimer.timedOut();
+    if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
+    else digitalWrite(HEATER_PIN,LOW);
+  }
+  if(now-dsiplayLastRefresh>DISPLAY_INTERVAL){
+    dsiplayLastRefresh+=DISPLAY_INTERVAL;
     int targetTemp = data.temp;
     if (buttonInput.steam) targetTemp = data.steamTemp;
     if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
     else digitalWrite(READY_LED_PIN,LOW);
-    bool sleep = sleepTimer.timedOut();
     if (sleep) display.printSleep();
     else if (brewing) display.printRealtime(data, currentTemp, String(BREWING_TEXT), brewTimer.remaining()/SECOND);
     else if (preinfusing) display.printRealtime(data, currentTemp, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND);
     else display.printState(data,currentTemp);
-    pid.setCurrent(double(currentTemp));
-    if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
-    else digitalWrite(HEATER_PIN,LOW);
   }
 }
