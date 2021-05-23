@@ -3,9 +3,11 @@
 
 #define TEMP_ADDR 0
 #define PRESS_ADDR 1
-#define BREW_TIMER_ADDR 2
-#define SHUTDOWN_TIMER_ADDR 3
-#define CRED_ADDR 4
+#define PREINF_PRESS_ADDR 3
+#define PREINF_TIMER_ADDR 4
+#define BREW_TIMER_ADDR 5
+#define SHUTDOWN_TIMER_ADDR 6
+#define CRED_ADDR 7
 #define CHECK_VAL 128
 
 CAPULUS_STATE::CAPULUS_STATE(){
@@ -24,6 +26,8 @@ void CAPULUS_STATE::persist_load(){
   }
   sdata.temp = EEPROM.read(TEMP_ADDR);
   sdata.pressure = EEPROM.read(PRESS_ADDR);
+  sdata.preinfusionPressure = EEPROM.read(PREINF_PRESS_ADDR);
+  sdata.preinfusionTimerSeconds = EEPROM.read(PREINF_TIMER_ADDR);
   sdata.brewTimerSeconds = EEPROM.read(BREW_TIMER_ADDR);
   sdata.sleepTimerMinutes = EEPROM.read(SHUTDOWN_TIMER_ADDR);
   EEPROM.end();
@@ -34,6 +38,8 @@ void CAPULUS_STATE::persist_save(){
   EEPROM.begin(512);
   EEPROM.write(TEMP_ADDR, sdata.temp);
   EEPROM.write(PRESS_ADDR, sdata.pressure);
+  EEPROM.write(PREINF_PRESS_ADDR, sdata.preinfusionPressure);
+  EEPROM.write(PREINF_TIMER_ADDR, sdata.preinfusionTimerSeconds);
   EEPROM.write(BREW_TIMER_ADDR, sdata.brewTimerSeconds);
   EEPROM.write(SHUTDOWN_TIMER_ADDR, sdata.sleepTimerMinutes);
   EEPROM.put(CRED_ADDR, sdata.ssid);
@@ -64,6 +70,12 @@ void CAPULUS_STATE::input(inputData input){
     case SELECT_SLEEP_TIMER:
         currentVal=sdata.sleepTimerMinutes;
         break;
+    case SELECT_PREINF_PRESS:
+        currentVal=sdata.preinfusionPressure;
+        break;
+    case SELECT_PREINF_TIMER:
+        currentVal=sdata.preinfusionTimerSeconds;
+        break;
     }
     if(input.plus){
         currentVal+=multiplier;
@@ -89,9 +101,17 @@ void CAPULUS_STATE::input(inputData input){
     case SELECT_SLEEP_TIMER:
         sdata.sleepTimerMinutes=currentVal;
         break;
+    case SELECT_PREINF_PRESS:
+        sdata.preinfusionPressure=currentVal;
+        break;
+    case SELECT_PREINF_TIMER:
+        sdata.preinfusionTimerSeconds=currentVal;
+        break;
     }
     if (sdata.temp>MAX_TEMP) sdata.temp=MAX_TEMP;
     if (sdata.pressure>MAX_PRESS) sdata.pressure=MAX_PRESS;
+    if (sdata.preinfusionPressure>MAX_PRESS) sdata.preinfusionPressure=MAX_PRESS;
+    if (sdata.preinfusionTimerSeconds>MAX_BREW_TIME) sdata.preinfusionTimerSeconds=MAX_BREW_TIME;
     if (sdata.brewTimerSeconds>MAX_BREW_TIME) sdata.temp=MAX_BREW_TIME;
     if (sdata.sleepTimerMinutes>MAX_SLEEP_TIME) sdata.pressure=MAX_SLEEP_TIME;
 }

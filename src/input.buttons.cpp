@@ -30,7 +30,7 @@ Calculating Total R: (1/R1+1/R2+1/R3...)^-1
 
 CAPULUS_BUTTON_INPUT::CAPULUS_BUTTON_INPUT(){ 
     //pinMode(STEAMPIN, INPUT);
-    //pinMode(STEAMPIN, INPUT);
+    //pinMode(BREWPIN, INPUT);
     result.minus = false;
     result.option = false;
     result.plus = false;
