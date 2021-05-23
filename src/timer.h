@@ -8,6 +8,7 @@ class TIMER {
 public:
     void start();
     unsigned long duration();
+    unsigned long remaining();
     void stop();
     bool timedOut();
     void setTimeOut(unsigned long);

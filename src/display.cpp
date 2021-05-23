@@ -13,43 +13,43 @@
 #define INDICATOR_HEIGHT 62 /* SCREEN_HEIGHT-PAGE_INDICATOR_PADDING*2 */
 #define SECTION_HEIGHT 15 /* (INDICATOR_HEIGHT)/(PAGE_COUNT) */
 
-#define TEMP_TEXT "temp"
-#define PRESS_TEXT "pressure"
-#define PREINF_PRESS_TEXT "preinf press"
-#define PREINF_TIMER_TEXT "preinf time"
-#define BREW_TIMER_TEXT "brew time"
-#define STEAM_TEMP_TEXT "steam temp"
-#define BAR_TEXT " bar"
-#define SECONDS_TEXT " s"
-#define SLEEP_TIMER_TEXT "sleep timer"
-#define MINUTES_TEXT " m"
-#define DISABLED_TEXT "disabled"
-#define TIMEOUT_TEXT "Sleep Mode"
-#define RESTART_TEXT_1 "press a button"
-#define RESTART_TEXT_2 "to wake up"
-#define SEPERATOR "-"
-
 Adafruit_SSD1306 capulus_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 CAPULUS_DISPLAY::CAPULUS_DISPLAY(){
     capulus_display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
-void CAPULUS_DISPLAY::print(stateData data, float currentTemp, bool timedOut){
+void CAPULUS_DISPLAY::printRealtime(stateData data, float currentTemp,String currentState, unsigned long remainingTime){
     capulus_display.clearDisplay();
     capulus_display.setTextSize(TEXT_SIZE);
     capulus_display.setTextColor(SSD1306_WHITE);
     capulus_display.setCursor(0, 0);
-    if (timedOut){
-        capulus_display.println(F(TIMEOUT_TEXT));
-        capulus_display.setTextSize(TEXT_SIZE/2);
-        capulus_display.println(F(""));
-        capulus_display.println(F(""));
-        capulus_display.println(F(RESTART_TEXT_1));
-        capulus_display.println(F(RESTART_TEXT_2));
-        capulus_display.display();
-        return;
-    }
+    capulus_display.println(currentState);
+    capulus_display.println(String(currentTemp, 2));
+    capulus_display.print(String(remainingTime, 10));
+    capulus_display.println(F(SECONDS_TEXT));
+    capulus_display.display();
+}
+
+void CAPULUS_DISPLAY::printSleep(){
+    capulus_display.clearDisplay();
+    capulus_display.setTextSize(TEXT_SIZE);
+    capulus_display.setTextColor(SSD1306_WHITE);
+    capulus_display.setCursor(0, 0);
+    capulus_display.println(F(TIMEOUT_TEXT));
+    capulus_display.setTextSize(TEXT_SIZE/2);
+    capulus_display.println(F(""));
+    capulus_display.println(F(""));
+    capulus_display.println(F(RESTART_TEXT_1));
+    capulus_display.println(F(RESTART_TEXT_2));
+    capulus_display.display();
+}
+
+void CAPULUS_DISPLAY::printState(stateData data, float currentTemp){
+    capulus_display.clearDisplay();
+    capulus_display.setTextSize(TEXT_SIZE);
+    capulus_display.setTextColor(SSD1306_WHITE);
+    capulus_display.setCursor(0, 0);
     int page;
     switch (data.selected){
     case SELECT_TEMP:

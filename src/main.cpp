@@ -84,7 +84,10 @@ void loop() {
     if (currentTemp>=data.temp-TEMP_RANGE && currentTemp<=data.temp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
     else digitalWrite(READY_LED_PIN,LOW);
     bool sleep = sleepTimer.timedOut();
-    display.print(data,currentTemp,sleep);
+    if (sleep) display.printSleep();
+    else if (preinfusing) display.printRealtime(data, currentTemp, String(PREINFING_TEXT), preinfusionTimer.remaining());
+    else if (brewing) display.printRealtime(data, currentTemp, String(BREWING_TEXT), brewTimer.remaining());
+    else display.printState(data,currentTemp);
     pid.setCurrent(double(currentTemp));
     if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
     else digitalWrite(HEATER_PIN,LOW);

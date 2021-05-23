@@ -7,6 +7,11 @@ void TIMER::stop(){startTime = 0;}
 
 void TIMER::setTimeOut(unsigned long to){timeout = to;}
 
+unsigned long TIMER::remaining(){
+    if (startTime==0)return 0;
+    return timeout-duration();
+}
+
 unsigned long TIMER::duration(){
     if (startTime==0)return 0;
     return millis()-startTime;
