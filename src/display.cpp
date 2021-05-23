@@ -27,8 +27,11 @@ void CAPULUS_DISPLAY::realtime(stateData data, float currentTemp, float pressure
     capulus_display.println(currentState);
     capulus_display.println(String(currentTemp, 2));
     capulus_display.println(String(pressure, 2));
-    capulus_display.print(String(remainingTime, 10));
-    capulus_display.println(F(SECONDS_TEXT));
+    if (remainingTime==0) capulus_display.println(F(FINISHED_TEXT));
+    else{
+        capulus_display.print(String(remainingTime, 10));
+        capulus_display.println(F(SECONDS_TEXT));
+    }
     capulus_display.display();
 }
 

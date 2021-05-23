@@ -24,6 +24,7 @@
 #define SEPERATOR "-"
 #define PREINFING_TEXT "preinfusion"
 #define BREWING_TEXT "brew"
+#define FINISHED_TEXT "finished"
 
 class CAPULUS_DISPLAY{
     public:
