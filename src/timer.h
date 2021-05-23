@@ -15,6 +15,7 @@ public:
 private:
     unsigned long startTime=0;
     unsigned long timeout=0;
+    bool alreadyTimedOut=false;
 };
 
 #endif

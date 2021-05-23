@@ -1,14 +1,21 @@
 #include "timer.h"
 #include <Arduino.h>
 
-void TIMER::start(){startTime = millis();}
+void TIMER::start(){
+    startTime = millis();
+    alreadyTimedOut = false;
+}
 
-void TIMER::stop(){startTime = 0;}
+void TIMER::stop(){
+    startTime = 0;
+    alreadyTimedOut = false;
+}
 
 void TIMER::setTimeOut(unsigned long to){timeout = to;}
 
 unsigned long TIMER::remaining(){
-    if (startTime==0)return 0;
+    if (startTime==0) return 0;
+    if (alreadyTimedOut) return 0;
     return timeout-duration();
 }
 
@@ -19,5 +26,6 @@ unsigned long TIMER::duration(){
 
 bool TIMER::timedOut(){
     if (timeout==0)return false;
-    return duration()>=timeout;
+    alreadyTimedOut = duration()>=timeout;
+    return alreadyTimedOut;
 }

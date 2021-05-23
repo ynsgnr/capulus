@@ -21,7 +21,7 @@ CAPULUS_DISPLAY::CAPULUS_DISPLAY(){
 
 void CAPULUS_DISPLAY::printRealtime(stateData data, float currentTemp,String currentState, unsigned long remainingTime){
     capulus_display.clearDisplay();
-    capulus_display.setTextSize(TEXT_SIZE);
+    capulus_display.setTextSize(TEXT_SIZE/2);
     capulus_display.setTextColor(SSD1306_WHITE);
     capulus_display.setCursor(0, 0);
     capulus_display.println(currentState);

@@ -10,6 +10,7 @@
 #define SLEEP_TIMER_ADDR 7
 #define CRED_ADDR 8
 #define CHECK_VAL 128
+#define PRESSION 10
 
 CAPULUS_STATE::CAPULUS_STATE(){
     persist_load();
@@ -26,8 +27,8 @@ void CAPULUS_STATE::persist_load(){
     return; //don't override default values if its first boot
   }
   sdata.temp = EEPROM.read(TEMP_ADDR);
-  sdata.pressure = double(EEPROM.read(PRESS_ADDR))/double(10);
-  sdata.preinfusionPressure = double(EEPROM.read(PREINF_PRESS_ADDR))/double(10);
+  sdata.pressure = double(EEPROM.read(PRESS_ADDR))/double(PRESSION);
+  sdata.preinfusionPressure = double(EEPROM.read(PREINF_PRESS_ADDR))/double(PRESSION);
   sdata.preinfusionTimerSeconds = EEPROM.read(PREINF_TIMER_ADDR);
   sdata.brewTimerSeconds = EEPROM.read(BREW_TIMER_ADDR);
   sdata.steamTemp = EEPROM.read(STEAM_TEMP_ADDR);
@@ -39,8 +40,8 @@ void CAPULUS_STATE::persist_load(){
 void CAPULUS_STATE::persist_save(){
   EEPROM.begin(512);
   EEPROM.write(TEMP_ADDR, sdata.temp);
-  EEPROM.write(PRESS_ADDR, sdata.pressure*10);
-  EEPROM.write(PREINF_PRESS_ADDR, sdata.preinfusionPressure*10);
+  EEPROM.write(PRESS_ADDR, sdata.pressure*PRESSION);
+  EEPROM.write(PREINF_PRESS_ADDR, sdata.preinfusionPressure*PRESSION);
   EEPROM.write(PREINF_TIMER_ADDR, sdata.preinfusionTimerSeconds);
   EEPROM.write(BREW_TIMER_ADDR, sdata.brewTimerSeconds);
   EEPROM.write(STEAM_TEMP_ADDR, sdata.steamTemp);

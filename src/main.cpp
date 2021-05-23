@@ -31,6 +31,7 @@ float currentTemp;
 bool brewing = false;
 bool preinfusing = false;
 stateData data;
+inputData buttonInput;
 
 void setup(){
   state = CAPULUS_STATE();
@@ -44,13 +45,15 @@ void setup(){
 }
 
 void loop() {
+  digitalWrite(READY_LED_PIN,HIGH);
   auto now = millis();
   if(now-inputLastRefresh>INPUT_INTERVAL){
     inputLastRefresh+=INPUT_INTERVAL;
-    inputData input = buttons.read();
-    if (input.any) sleepTimer.start();
-    if (input.brew){
-      if (input.steam){
+    buttonInput = buttons.read();
+    if (buttonInput.any) sleepTimer.start();
+    if (buttonInput.brew){
+      digitalWrite(READY_LED_PIN,HIGH);
+      if (buttonInput.steam){
         analogWrite(PUMP_PWM_PIN,MAX_PWM);
       }else{
         if (!preinfusing) preinfusionTimer.start();
@@ -69,9 +72,9 @@ void loop() {
       brewing = false;
       analogWrite(PUMP_PWM_PIN,0);
       //only change state when not brewing
-      state.input(input);
+      state.input(buttonInput);
       data = state.data();
-      if (input.steam) pid.setTarget(data.steamTemp);
+      if (buttonInput.steam) pid.setTarget(data.steamTemp);
       else pid.setTarget(data.temp);
       brewTimer.setTimeOut(data.brewTimerSeconds*SECOND);
       sleepTimer.setTimeOut(data.sleepTimerMinutes*MINUTE);
@@ -81,12 +84,14 @@ void loop() {
   if(now-tempLastRefresh>TEMP_INTERVAL){
     tempLastRefresh+=TEMP_INTERVAL;
     currentTemp = read_temp();
-    if (currentTemp>=data.temp-TEMP_RANGE && currentTemp<=data.temp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
+    int targetTemp = data.temp;
+    if (buttonInput.steam) targetTemp = data.steamTemp;
+    if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
     else digitalWrite(READY_LED_PIN,LOW);
     bool sleep = sleepTimer.timedOut();
     if (sleep) display.printSleep();
-    else if (preinfusing) display.printRealtime(data, currentTemp, String(PREINFING_TEXT), preinfusionTimer.remaining());
-    else if (brewing) display.printRealtime(data, currentTemp, String(BREWING_TEXT), brewTimer.remaining());
+    else if (brewing) display.printRealtime(data, currentTemp, String(BREWING_TEXT), brewTimer.remaining()/SECOND);
+    else if (preinfusing) display.printRealtime(data, currentTemp, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND);
     else display.printState(data,currentTemp);
     pid.setCurrent(double(currentTemp));
     if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);

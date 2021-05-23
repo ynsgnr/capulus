@@ -29,8 +29,10 @@ Calculating Total R: (1/R1+1/R2+1/R3...)^-1
 
 
 CAPULUS_BUTTON_INPUT::CAPULUS_BUTTON_INPUT(){ 
-    //pinMode(STEAMPIN, INPUT);
-    //pinMode(BREWPIN, INPUT);
+    pinMode(STEAMPIN, INPUT);
+    digitalWrite(STEAMPIN, HIGH);
+    pinMode(BREWPIN, INPUT);
+    digitalWrite(BREWPIN, HIGH);
     result.minus = false;
     result.option = false;
     result.plus = false;
@@ -61,19 +63,25 @@ inputData CAPULUS_BUTTON_INPUT::read(){
         result.option = false;
         result.plus = false;
     }
-    if (!digitalRead(STEAMPIN)){
+    if (digitalRead(STEAMPIN)==LOW){
         if (!result.steam) result.any = true;
         result.steam = true;
+        digitalWrite(STEAMPIN, HIGH);
+        digitalWrite(0, HIGH);
     }else{
         if (result.steam) result.any = true;
         result.steam = false;
+        digitalWrite(0, LOW);
     }
-    if (!digitalRead(BREWPIN)){
+    if (digitalRead(BREWPIN)==LOW){
         if (!result.brew) result.any = true;
         result.brew = true;
+        digitalWrite(BREWPIN, HIGH);
+        digitalWrite(0, HIGH);
     }else{
         if (result.brew) result.any = true;
         result.brew = false;
+        digitalWrite(0, LOW);
     }
     return result;
 }
