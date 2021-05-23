@@ -7,17 +7,18 @@
 #define SCREEN_ADDRESS 0x3C
 
 #define TEXT_SIZE 2
-#define PAGE_COUNT 3
+#define PAGE_COUNT 4
 #define PAGE_INDICATOR_SIZE 4
 #define PAGE_INDICATOR_PADDING 1
 #define INDICATOR_HEIGHT 62 /* SCREEN_HEIGHT-PAGE_INDICATOR_PADDING*2 */
-#define SECTION_HEIGHT 31 /* (INDICATOR_HEIGHT)/(PAGE_COUNT) */
+#define SECTION_HEIGHT 15 /* (INDICATOR_HEIGHT)/(PAGE_COUNT) */
 
 #define TEMP_TEXT "temp"
 #define PRESS_TEXT "pressure"
-#define BREW_TIMER_TEXT "brew time"
 #define PREINF_PRESS_TEXT "preinf press"
 #define PREINF_TIMER_TEXT "preinf time"
+#define BREW_TIMER_TEXT "brew time"
+#define STEAM_TEMP_TEXT "steam temp"
 #define BAR_TEXT " bar"
 #define SECONDS_TEXT " s"
 #define SLEEP_TIMER_TEXT "sleep timer"
@@ -49,7 +50,7 @@ void CAPULUS_DISPLAY::print(stateData data, float currentTemp, bool timedOut){
         capulus_display.display();
         return;
     }
-    int page=0;
+    int page;
     switch (data.selected){
     case SELECT_TEMP:
     case SELECT_PRESS:
@@ -68,11 +69,13 @@ void CAPULUS_DISPLAY::print(stateData data, float currentTemp, bool timedOut){
     case SELECT_PREINF_TIMER:
         page=1;
         if (data.selected == SELECT_PREINF_PRESS) capulus_display.print(F(">"));
+        capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(PREINF_PRESS_TEXT));
         capulus_display.setTextSize(TEXT_SIZE);
-        capulus_display.print(String(data.preinfusionPressure,10));
+        capulus_display.print(String(data.preinfusionPressure,1));
         capulus_display.println(F(BAR_TEXT));
         if (data.selected == SELECT_PREINF_TIMER) capulus_display.print(F(">"));
+        capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(PREINF_TIMER_TEXT));
         capulus_display.setTextSize(TEXT_SIZE);
         if (data.preinfusionTimerSeconds==0){
@@ -81,13 +84,24 @@ void CAPULUS_DISPLAY::print(stateData data, float currentTemp, bool timedOut){
             capulus_display.print(String(data.preinfusionTimerSeconds,10));
             capulus_display.println(F(SECONDS_TEXT));
         }
+        break;
     case SELECT_BREW_TIMER:
-    case SELECT_SLEEP_TIMER:
+    case SELECT_STEAM_TEMP:
         page=2;
         if (data.selected == SELECT_BREW_TIMER) capulus_display.print(F(">"));
+        capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(BREW_TIMER_TEXT));
+        capulus_display.setTextSize(TEXT_SIZE);
         capulus_display.print(String(data.brewTimerSeconds,10));
         capulus_display.println(F(SECONDS_TEXT));
+        if (data.selected == SELECT_STEAM_TEMP) capulus_display.print(F(">"));
+        capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
+        capulus_display.println(F(STEAM_TEMP_TEXT));
+        capulus_display.setTextSize(TEXT_SIZE);
+        capulus_display.println(String(data.steamTemp,10));
+        break;
+    case SELECT_SLEEP_TIMER:
+        page=3;
         if (data.selected == SELECT_SLEEP_TIMER) capulus_display.print(F(">"));
         capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(SLEEP_TIMER_TEXT));
@@ -98,7 +112,9 @@ void CAPULUS_DISPLAY::print(stateData data, float currentTemp, bool timedOut){
             capulus_display.print(String(data.sleepTimerMinutes,10));
             capulus_display.println(F(MINUTES_TEXT));
         }
+        break;
     default:
+        page = -1;
         break;
     }
     //draw page indicator

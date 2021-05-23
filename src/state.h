@@ -9,8 +9,9 @@
 #define SELECT_PREINF_PRESS 2
 #define SELECT_PREINF_TIMER 3
 #define SELECT_BREW_TIMER 4
-#define SELECT_SLEEP_TIMER 5
-#define INCREASE_SELECTED(selected) (selected+1)%6
+#define SELECT_STEAM_TEMP 5
+#define SELECT_SLEEP_TIMER 6
+#define INCREASE_SELECTED(selected) (selected+1)%7
 
 #define MAX_TEMP 110
 #define MAX_PRESS 15
@@ -23,7 +24,7 @@ struct stateData{
     int temp = 90;
     int steamTemp = 150;
     double pressure = 9;
-    int preinfusionPressure = 3;
+    double preinfusionPressure = 3;
     int preinfusionTimerSeconds = 0;
     int sleepTimerMinutes = 5;
     int brewTimerSeconds = 20;
