@@ -100,6 +100,21 @@ void CAPULUS_DISPLAY::sleep(){
     capulus_display.display();
 }
 
+void CAPULUS_DISPLAY::autotune(){
+    realtimeT = 0;
+    capulus_display.clearDisplay();
+    capulus_display.setTextSize(TEXT_SIZE);
+    capulus_display.setTextColor(SSD1306_WHITE);
+    capulus_display.setCursor(0, 0);
+    capulus_display.println(F(CALIBRATE_TEXT));
+    capulus_display.setTextSize(TEXT_SIZE/2);
+    capulus_display.println(F(""));
+    capulus_display.println(F(""));
+    capulus_display.println(F(CALIBRATE_CANCEL_TEXT_1));
+    capulus_display.println(F(CALIBRATE_CANCEL_TEXT_2));
+    capulus_display.display();
+}
+
 void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
     realtimeT = 0;
     capulus_display.clearDisplay();
@@ -111,12 +126,12 @@ void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
     case SELECT_TEMP:
     case SELECT_PRESS:
         page=0;
-        if (data.selected == SELECT_TEMP) capulus_display.print(F(">"));
+        if (data.selected == SELECT_TEMP) capulus_display.print(F(SELECTOR));
         capulus_display.println(F(TEMP_TEXT));
         capulus_display.print(String(currentTemp, 2));
         capulus_display.print(F(SEPERATOR));
         capulus_display.println(String(data.temp,10));
-        if (data.selected == SELECT_PRESS) capulus_display.print(F(">"));
+        if (data.selected == SELECT_PRESS) capulus_display.print(F(SELECTOR));
         capulus_display.println(F(PRESS_TEXT));
         capulus_display.print(String(data.pressure,1));
         capulus_display.println(F(BAR_TEXT));
@@ -124,13 +139,13 @@ void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
     case SELECT_PREINF_PRESS:
     case SELECT_PREINF_TIMER:
         page=1;
-        if (data.selected == SELECT_PREINF_PRESS) capulus_display.print(F(">"));
+        if (data.selected == SELECT_PREINF_PRESS) capulus_display.print(F(SELECTOR));
         capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(PREINF_PRESS_TEXT));
         capulus_display.setTextSize(TEXT_SIZE);
         capulus_display.print(String(data.preinfusionPressure,1));
         capulus_display.println(F(BAR_TEXT));
-        if (data.selected == SELECT_PREINF_TIMER) capulus_display.print(F(">"));
+        if (data.selected == SELECT_PREINF_TIMER) capulus_display.print(F(SELECTOR));
         capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(PREINF_TIMER_TEXT));
         capulus_display.setTextSize(TEXT_SIZE);
@@ -144,13 +159,13 @@ void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
     case SELECT_BREW_TIMER:
     case SELECT_STEAM_TEMP:
         page=2;
-        if (data.selected == SELECT_BREW_TIMER) capulus_display.print(F(">"));
+        if (data.selected == SELECT_BREW_TIMER) capulus_display.print(F(SELECTOR));
         capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(BREW_TIMER_TEXT));
         capulus_display.setTextSize(TEXT_SIZE);
         capulus_display.print(String(data.brewTimerSeconds,10));
         capulus_display.println(F(SECONDS_TEXT));
-        if (data.selected == SELECT_STEAM_TEMP) capulus_display.print(F(">"));
+        if (data.selected == SELECT_STEAM_TEMP) capulus_display.print(F(SELECTOR));
         capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(STEAM_TEMP_TEXT));
         capulus_display.setTextSize(TEXT_SIZE);
@@ -159,8 +174,9 @@ void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
         capulus_display.println(String(data.steamTemp,10));
         break;
     case SELECT_SLEEP_TIMER:
+    case SELECT_CALIBRATE:
         page=3;
-        if (data.selected == SELECT_SLEEP_TIMER) capulus_display.print(F(">"));
+        if (data.selected == SELECT_SLEEP_TIMER) capulus_display.print(F(SELECTOR));
         capulus_display.setTextSize(TEXT_SIZE/2,TEXT_SIZE);
         capulus_display.println(F(SLEEP_TIMER_TEXT));
         capulus_display.setTextSize(TEXT_SIZE);
@@ -170,6 +186,9 @@ void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
             capulus_display.print(String(data.sleepTimerMinutes,10));
             capulus_display.println(F(MINUTES_TEXT));
         }
+        if (data.selected == SELECT_CALIBRATE) capulus_display.print(F(SELECTOR));
+        capulus_display.println(F(CALIBRATE_TEXT));
+        if (data.selected == SELECT_CALIBRATE) capulus_display.println(F(CALIBRATE_PROMPT_TEXT));
         break;
     default:
         page = -1;

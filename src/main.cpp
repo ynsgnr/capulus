@@ -17,10 +17,20 @@
 #define MAX_PWM 1023
 #define TEMP_RANGE 1
 
+//pid paramaters
+#define PID_KP 2
+#define PID_KI 5
+#define PID_KD 1
+//autotune related stuff
+#define ATUNE_STEP 5
+#define ATUNE_NOISE 0.5
+#define ATUNE_START 80
+#define ATUNE_LOOKBACK 2
+
 CAPULUS_STATE state;
 CAPULUS_BUTTON_INPUT buttons;
 CAPULUS_DISPLAY display;
-CAPULUS_PID pid(TEMP_INTERVAL);
+CAPULUS_PID pid(TEMP_INTERVAL,PID_KP,PID_KI,PID_KD);
 
 TIMER sleepTimer;
 TIMER brewTimer;
@@ -40,7 +50,7 @@ void setup(){
   state = CAPULUS_STATE();
   buttons = CAPULUS_BUTTON_INPUT();
   display = CAPULUS_DISPLAY();
-  pid = CAPULUS_PID(TEMP_INTERVAL);
+  pid = CAPULUS_PID(TEMP_INTERVAL,PID_KP,PID_KI,PID_KD);
   sleepTimer.start();
   pinMode(HEATER_PIN,OUTPUT);
   pinMode(PUMP_PWM_PIN,OUTPUT);
@@ -49,10 +59,37 @@ void setup(){
 
 void loop() {
   auto now = millis();
+  if (data.autotuning){
+    if((now-tempLastRefresh)>TEMP_INTERVAL){
+      tempLastRefresh+=TEMP_INTERVAL;
+
+      buttonInput = buttons.read();
+      if (buttonInput.any) {
+        state.setTunings(pid.getKp(),pid.getKi(),pid.getKd());
+        data = state.data();
+        return;
+      }
+
+      display.autotune();
+      analogWrite(PUMP_PWM_PIN,data.pressure/PUMP_PRESSURE*MAX_PWM);
+      
+      currentTemp = read_temp();
+      pid.setCurrent(double(currentTemp));
+      if (!pid.autotune(ATUNE_NOISE, ATUNE_STEP, ATUNE_LOOKBACK, ATUNE_START)){
+        state.setTunings(pid.getKp(),pid.getKi(),pid.getKd());
+        data = state.data();
+      }
+      if (pid.signal()) digitalWrite(HEATER_PIN,HIGH);
+      else digitalWrite(HEATER_PIN,LOW);
+    }
+    return;
+  }
   if((now-inputLastRefresh)>INPUT_INTERVAL){
     inputLastRefresh+=INPUT_INTERVAL;
+
     buttonInput = buttons.read();
     if (buttonInput.any) sleepTimer.start();
+
     if (buttonInput.brew && !sleep){
       if (buttonInput.steam){
         analogWrite(PUMP_PWM_PIN,MAX_PWM);
@@ -84,6 +121,7 @@ void loop() {
   }
   if((now-tempLastRefresh)>TEMP_INTERVAL){
     tempLastRefresh+=TEMP_INTERVAL;
+
     currentTemp = read_temp();
     pid.setCurrent(double(currentTemp));
     sleep = sleepTimer.timedOut();
@@ -92,10 +130,12 @@ void loop() {
   }
   if((now-displayLastRefresh)>DISPLAY_INTERVAL){
     displayLastRefresh+=DISPLAY_INTERVAL;
+
     int targetTemp = data.temp;
     if (buttonInput.steam) targetTemp = data.steamTemp;
     if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
     else digitalWrite(READY_LED_PIN,LOW);
+    
     unsigned long totalTime = (data.brewTimerSeconds + data.preinfusionTimerSeconds)*SECOND;
     if (sleep) display.sleep();
     else if (brewing) display.realtime(currentTemp, data.temp, data.pressure, String(BREWING_TEXT), brewTimer.remaining()/SECOND, totalTime);

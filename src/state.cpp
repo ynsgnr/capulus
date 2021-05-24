@@ -8,7 +8,10 @@
 #define BREW_TIMER_ADDR 5
 #define STEAM_TEMP_ADDR 6
 #define SLEEP_TIMER_ADDR 7
-#define CRED_ADDR 8
+#define KP_ADDR 8
+#define KI_ADDR 9
+#define KD_ADDR 10
+#define CRED_ADDR 11
 #define CHECK_VAL 128
 #define PRESSION 10
 
@@ -33,6 +36,9 @@ void CAPULUS_STATE::persist_load(){
   sdata.brewTimerSeconds = EEPROM.read(BREW_TIMER_ADDR);
   sdata.steamTemp = EEPROM.read(STEAM_TEMP_ADDR);
   sdata.sleepTimerMinutes = EEPROM.read(SLEEP_TIMER_ADDR);
+  sdata.kp = double(EEPROM.read(KP_ADDR))/double(PRESSION);
+  sdata.ki = double(EEPROM.read(KI_ADDR))/double(PRESSION);
+  sdata.kd = double(EEPROM.read(KD_ADDR))/double(PRESSION);
   EEPROM.end();
   sdata.selected = 0;
 }
@@ -49,6 +55,9 @@ void CAPULUS_STATE::persist_save(){
   EEPROM.put(CRED_ADDR, sdata.ssid);
   EEPROM.put(CRED_ADDR+sizeof(sdata.ssid), sdata.password);
   EEPROM.write(CRED_ADDR+sizeof(sdata.ssid)+sizeof(sdata.password), CHECK_VAL);
+  EEPROM.write(KP_ADDR, sdata.kp*PRESSION);
+  EEPROM.write(KI_ADDR, sdata.ki*PRESSION);
+  EEPROM.write(KD_ADDR, sdata.kd*PRESSION);
   EEPROM.commit();
   EEPROM.end();
 }
@@ -88,6 +97,9 @@ void CAPULUS_STATE::input(inputData input){
     case SELECT_SLEEP_TIMER:
         currentVal=sdata.sleepTimerMinutes;
         break;
+    case SELECT_CALIBRATE:
+        currentVal=sdata.autotuning;
+        break;
     }
     if(input.plus){
         currentVal+=multiplier;
@@ -122,6 +134,9 @@ void CAPULUS_STATE::input(inputData input){
     case SELECT_SLEEP_TIMER:
         sdata.sleepTimerMinutes=currentVal;
         break;
+    case SELECT_CALIBRATE:
+        sdata.autotuning=currentVal;
+        break;
     }
     if (sdata.temp>MAX_TEMP) sdata.temp=MAX_TEMP;
     if (sdata.pressure>MAX_PRESS) sdata.pressure=MAX_PRESS;
@@ -133,3 +148,11 @@ void CAPULUS_STATE::input(inputData input){
 }
 
 stateData CAPULUS_STATE::data(){return sdata;}
+
+void CAPULUS_STATE::setTunings(double kp, double ki, double kd){
+    sdata.kp = kp;
+    sdata.ki = ki;
+    sdata.kd = kd;
+    sdata.autotuning = false;
+    persist_save();
+}

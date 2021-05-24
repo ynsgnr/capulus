@@ -5,10 +5,22 @@
 
 class CAPULUS_PID {
 public:
-    CAPULUS_PID(double);
+    CAPULUS_PID(double ws, double kp, double ki, double kd);
     void setCurrent(double);
     void setTarget(double);
+    //signal - returns the signal for heater
+    //depends on target and current 
+    //set those values with setCurrent and setTarget
+    //returns if the heater should run or not
     bool signal();
+    //autotune - autotunes the paramaters for pid
+    //signal should be called after each call to this function
+    //returns if the autotune should be repeated or not
+    //autotune is only completed when this returns false
+    bool autotune(double noise, double step, int lookBack, double startValue);
+    double getKp();
+    double getKi();
+    double getKd();
 };
 
 #endif

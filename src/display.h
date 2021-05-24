@@ -7,6 +7,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+#define SELECTOR ">"
 #define TEMP_TEXT "temp"
 #define PRESS_TEXT "pressure"
 #define PREINF_PRESS_TEXT "preinf press"
@@ -27,6 +28,10 @@
 #define BREWING_TEXT "brew"
 #define FINISHED_TEXT "finished"
 #define TEMP_GRAPH_TEXT "temp graph"
+#define CALIBRATE_TEXT "calibrate"
+#define CALIBRATE_CANCEL_TEXT_1 "press a button"
+#define CALIBRATE_CANCEL_TEXT_2 "to cancel"
+#define CALIBRATE_PROMPT_TEXT "press +"
 
 class CAPULUS_DISPLAY{
     public:
@@ -35,6 +40,8 @@ class CAPULUS_DISPLAY{
         void state(stateData,float);
         // sleep - displays sleep message
         void sleep();
+        // sleep - displays autotune message
+        void autotune();
         // realtime - displays status and temp graph over sample period, historic data is kept on OLED memory
         // this function expects setTemp and totalTime not to be changed during a realtime display session
         // in the case that they change screen need to be reset with sleep or state functions otherwise
