@@ -40,8 +40,11 @@ void CAPULUS_DISPLAY::realtime(float currentTemp, int setTemp, double setpressur
         capulus_display.setTextColor(SSD1306_WHITE);
         capulus_display.println(F(TEMP_GRAPH_TEXT));
         if (setTemp>=REALTIME_MIN_TEMP && setTemp<=REALTIME_MAX_TEMP){
-            int y = REALTIME_GRAPH_HEIGHT-REALTIME_UNIT_TEMP*(setTemp-REALTIME_MIN_TEMP);
-            capulus_display.drawFastHLine(0, y, REALTIME_GRAPH_VALUES_POS, SSD1306_WHITE);
+            //draw dotted line for selected temp
+            int y = REALTIME_UNIT_TEMP*(REALTIME_MAX_TEMP-setTemp);
+            for (int i=0;i<REALTIME_GRAPH_VALUES_POS;i+=4){
+                capulus_display.drawFastHLine(i, y, 2, SSD1306_WHITE);
+            }
             capulus_display.setCursor(REALTIME_GRAPH_VALUES_POS, y-LINE_SIZE/2);
             capulus_display.print(String(setTemp,10));
         }
