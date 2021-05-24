@@ -41,6 +41,7 @@ private:
     void persist_save();
     double multiplier = 1;
     stateData sdata;
+    bool steaming;
 };
 
 #endif
