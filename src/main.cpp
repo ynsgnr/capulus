@@ -53,7 +53,7 @@ void loop() {
     inputLastRefresh+=INPUT_INTERVAL;
     buttonInput = buttons.read();
     if (buttonInput.any) sleepTimer.start();
-    if (buttonInput.brew){
+    if (buttonInput.brew && !sleep){
       if (buttonInput.steam){
         analogWrite(PUMP_PWM_PIN,MAX_PWM);
       }else{
@@ -104,6 +104,5 @@ void loop() {
 }
 
 //TODO
-// fix led directions on test board
 // auto pid config
 // advanced brewing view with temp graph, pressure, preinfusion/brew and remaining time
