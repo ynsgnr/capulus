@@ -24,8 +24,8 @@ Calculating Total R: (1/R1+1/R2+1/R3...)^-1
 #define RANGE 50
 #define RCALC(value,compare) (value<=compare+RANGE && value>=compare-RANGE)
 
-#define STEAMPIN 3 //RX
-#define BREWPIN 1 //TX
+#define STEAMPIN 3 //RX - red
+#define BREWPIN 1 //TX - brown
 
 
 CAPULUS_BUTTON_INPUT::CAPULUS_BUTTON_INPUT(){ 

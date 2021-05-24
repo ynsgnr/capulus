@@ -6,9 +6,9 @@
 #include <pid.h>
 #include <timer.h>
 
-#define HEATER_PIN 16 //D0
-#define PUMP_PWM_PIN 14 //D5
-#define READY_LED_PIN 0 //D3
+#define HEATER_PIN 16 //D0 - blue
+#define PUMP_PWM_PIN 14 //D5 - orange
+#define READY_LED_PIN 0 //D3 - green
 
 #define INPUT_INTERVAL 250
 #define TEMP_INTERVAL 300
@@ -48,14 +48,12 @@ void setup(){
 }
 
 void loop() {
-  digitalWrite(READY_LED_PIN,HIGH);
   auto now = millis();
   if(now-inputLastRefresh>INPUT_INTERVAL){
     inputLastRefresh+=INPUT_INTERVAL;
     buttonInput = buttons.read();
     if (buttonInput.any) sleepTimer.start();
     if (buttonInput.brew){
-      digitalWrite(READY_LED_PIN,HIGH);
       if (buttonInput.steam){
         analogWrite(PUMP_PWM_PIN,MAX_PWM);
       }else{
@@ -104,3 +102,8 @@ void loop() {
     else display.state(data,currentTemp);
   }
 }
+
+//TODO
+// fix led directions on test board
+// auto pid config
+// advanced brewing view with temp graph, pressure, preinfusion/brew and remaining time
