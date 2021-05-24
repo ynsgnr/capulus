@@ -20,7 +20,7 @@
 CAPULUS_STATE state;
 CAPULUS_BUTTON_INPUT buttons;
 CAPULUS_DISPLAY display;
-CAPULUS_PID pid;
+CAPULUS_PID pid(TEMP_INTERVAL);
 
 TIMER sleepTimer;
 TIMER brewTimer;
@@ -40,7 +40,7 @@ void setup(){
   state = CAPULUS_STATE();
   buttons = CAPULUS_BUTTON_INPUT();
   display = CAPULUS_DISPLAY();
-  pid = CAPULUS_PID();
+  pid = CAPULUS_PID(TEMP_INTERVAL);
   sleepTimer.start();
   pinMode(HEATER_PIN,OUTPUT);
   pinMode(PUMP_PWM_PIN,OUTPUT);

@@ -13,7 +13,7 @@
 #define SELECT_SLEEP_TIMER 6
 #define INCREASE_SELECTED(selected) (selected+1)%7
 
-#define MAX_TEMP 110
+#define MAX_TEMP 150
 #define MAX_PRESS 15
 #define MAX_BREW_TIME 60 //seconds
 #define MAX_SLEEP_TIME 30 //minutes

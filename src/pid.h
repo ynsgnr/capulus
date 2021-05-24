@@ -5,7 +5,7 @@
 
 class CAPULUS_PID {
 public:
-    CAPULUS_PID();
+    CAPULUS_PID(double);
     void setCurrent(double);
     void setTarget(double);
     bool signal();
