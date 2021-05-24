@@ -26,16 +26,23 @@
 #define PREINFING_TEXT "preinfusion"
 #define BREWING_TEXT "brew"
 #define FINISHED_TEXT "finished"
+#define TEMP_GRAPH_TEXT "temp graph"
 
 class CAPULUS_DISPLAY{
     public:
         CAPULUS_DISPLAY();
+        // state - displays menu and current settings
         void state(stateData,float);
+        // sleep - displays sleep message
         void sleep();
-        void realtime(float currentTemp, int setTemp, double setpressure, String currentState, unsigned long remainingTime);
+        // realtime - displays status and temp graph over sample period, historic data is kept on OLED memory
+        // this function expects setTemp and totalTime not to be changed during a realtime display session
+        // in the case that they change screen need to be reset with sleep or state functions otherwise
+        // graph will be broken
+        void realtime(float currentTemp, int setTemp, double setpressure, String currentState, unsigned long remainingTime, unsigned long totalTime);
     private:
-        bool realtimeDrawing=false;
-        int realtimeLastRefresh=0;
+        unsigned long realtimeLastRefresh=0;
+        int realtimeT=0;
 };
 
 #endif

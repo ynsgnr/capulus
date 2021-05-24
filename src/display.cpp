@@ -1,5 +1,6 @@
 #include "display.h"
-#include "state.h"
+#include <state.h>
+#include <math.h>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -14,13 +15,14 @@
 #define INDICATOR_HEIGHT 62 /* SCREEN_HEIGHT-PAGE_INDICATOR_PADDING*2 */
 #define SECTION_HEIGHT 15 /* (INDICATOR_HEIGHT)/(PAGE_COUNT) */
 
-#define REALTIME_MIN_TEMP 67
-#define REALTIME_MAX_TEMP 113
+#define REALTIME_MIN_TEMP 80
+#define REALTIME_MAX_TEMP 100
 #define REALTIME_TEXT_SIZE 1 /* TEXT_SIZE/2 */
 #define REALTIME_GRAPH_HEIGHT 48 /* SCREEN_HEIGHT-REALTIME_TEXT_SIZE*LINE_SIZE*2 */
 #define REALTIME_STATUS_BAR_HEIGHT 16 /* SCREEN_HEIGHT-REALTIME_GRAPH_HEIGHT */
 #define REALTIME_STATUS_BAR_Y REALTIME_GRAPH_HEIGHT
-#define REALTIME_UNIT_TEMP 1 /* (REALTIME_MAX_TEMP-REALTIME_MIN_TEMP)/REALTIME_GRAPH_HEIGHT */
+#define REALTIME_UNIT_TEMP 2 /* (REALTIME_MAX_TEMP-REALTIME_MIN_TEMP)/REALTIME_GRAPH_HEIGHT */
+#define REALTIME_GRAPH_VALUES_POS 104 /* SCREEN_WIDTH-LINE_SIZE*3 */
 
 Adafruit_SSD1306 capulus_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
@@ -28,25 +30,44 @@ CAPULUS_DISPLAY::CAPULUS_DISPLAY(){
     capulus_display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
-void CAPULUS_DISPLAY::realtime(float currentTemp, int setTemp, double setpressure, String currentState, unsigned long remainingTime){
-    if (realtimeDrawing){
+void CAPULUS_DISPLAY::realtime(float currentTemp, int setTemp, double setpressure, String currentState, unsigned long remainingTime, unsigned long totalTime){
+    if (realtimeT==0){
+        realtimeT = 1;//draw set temp line and set,min,max temp
+        realtimeLastRefresh=millis();
+        capulus_display.clearDisplay();
+        capulus_display.setCursor(0, 0);
+        capulus_display.setTextSize(REALTIME_TEXT_SIZE);
+        capulus_display.setTextColor(SSD1306_WHITE);
+        capulus_display.println(F(TEMP_GRAPH_TEXT));
+        if (setTemp>=REALTIME_MIN_TEMP && setTemp<=REALTIME_MAX_TEMP){
+            int y = REALTIME_GRAPH_HEIGHT-REALTIME_UNIT_TEMP*(setTemp-REALTIME_MIN_TEMP);
+            capulus_display.drawFastHLine(0, y, REALTIME_GRAPH_VALUES_POS, SSD1306_WHITE);
+            capulus_display.setCursor(REALTIME_GRAPH_VALUES_POS, y-LINE_SIZE/2);
+            capulus_display.print(String(setTemp,10));
+        }
+        if (setTemp<REALTIME_MAX_TEMP-6){
+            capulus_display.setCursor(REALTIME_GRAPH_VALUES_POS, LINE_SIZE);
+            capulus_display.print(String(REALTIME_MAX_TEMP,10));
+        }
+        if (setTemp>REALTIME_MIN_TEMP+3){
+            capulus_display.setCursor(REALTIME_GRAPH_VALUES_POS, REALTIME_GRAPH_HEIGHT-LINE_SIZE);
+            capulus_display.print(String(REALTIME_MIN_TEMP,10));
+        }
+    }else{
         //only refresh status bar since graph data is only kept on OLED memory
         capulus_display.fillRect(0, REALTIME_STATUS_BAR_Y, SCREEN_WIDTH, REALTIME_STATUS_BAR_HEIGHT, SSD1306_BLACK);
-    }else{
-        capulus_display.clearDisplay();
-        realtimeDrawing = true;
     }
 
-    //draw set temp line and set temp
-    int y = REALTIME_GRAPH_HEIGHT-REALTIME_UNIT_TEMP*(setTemp-REALTIME_MIN_TEMP);
-    int currentTempSizeX = SCREEN_WIDTH-LINE_SIZE*3;
-    capulus_display.drawLine(0, y, currentTempSizeX, y, SSD1306_WHITE);
-    capulus_display.setTextSize(REALTIME_TEXT_SIZE);
-    capulus_display.setTextColor(SSD1306_WHITE);
-    capulus_display.setCursor(currentTempSizeX, y-LINE_SIZE/2);
+    //draw next dot if sample rate requires
+    unsigned long now = millis();
+    unsigned long sampleInterval = floorf(float(totalTime)/REALTIME_GRAPH_VALUES_POS);
+    if(remainingTime>0 && (now-realtimeLastRefresh)>sampleInterval){
+        realtimeLastRefresh+=sampleInterval;
+        capulus_display.drawPixel(realtimeT,roundf(REALTIME_UNIT_TEMP*(REALTIME_MAX_TEMP-currentTemp)), SSD1306_WHITE);
+        realtimeT++;
+    }
 
     //draw status bar
-    capulus_display.print(String(setTemp,10));
     capulus_display.setCursor(0, REALTIME_STATUS_BAR_Y);
     capulus_display.println(currentState);
     capulus_display.print(String(currentTemp, 2));
@@ -62,7 +83,7 @@ void CAPULUS_DISPLAY::realtime(float currentTemp, int setTemp, double setpressur
 }
 
 void CAPULUS_DISPLAY::sleep(){
-    realtimeDrawing = false;
+    realtimeT = 0;
     capulus_display.clearDisplay();
     capulus_display.setTextSize(TEXT_SIZE);
     capulus_display.setTextColor(SSD1306_WHITE);
@@ -77,7 +98,7 @@ void CAPULUS_DISPLAY::sleep(){
 }
 
 void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
-    realtimeDrawing = false;
+    realtimeT = 0;
     capulus_display.clearDisplay();
     capulus_display.setTextSize(TEXT_SIZE);
     capulus_display.setTextColor(SSD1306_WHITE);

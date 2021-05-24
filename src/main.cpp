@@ -49,7 +49,7 @@ void setup(){
 
 void loop() {
   auto now = millis();
-  if(now-inputLastRefresh>INPUT_INTERVAL){
+  if((now-inputLastRefresh)>INPUT_INTERVAL){
     inputLastRefresh+=INPUT_INTERVAL;
     buttonInput = buttons.read();
     if (buttonInput.any) sleepTimer.start();
@@ -82,7 +82,7 @@ void loop() {
       preinfusionTimer.setTimeOut(data.preinfusionTimerSeconds*SECOND);
     }
   }
-  if(now-tempLastRefresh>TEMP_INTERVAL){
+  if((now-tempLastRefresh)>TEMP_INTERVAL){
     tempLastRefresh+=TEMP_INTERVAL;
     currentTemp = read_temp();
     pid.setCurrent(double(currentTemp));
@@ -90,15 +90,16 @@ void loop() {
     if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
     else digitalWrite(HEATER_PIN,LOW);
   }
-  if(now-displayLastRefresh>DISPLAY_INTERVAL){
+  if((now-displayLastRefresh)>DISPLAY_INTERVAL){
     displayLastRefresh+=DISPLAY_INTERVAL;
     int targetTemp = data.temp;
     if (buttonInput.steam) targetTemp = data.steamTemp;
     if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
     else digitalWrite(READY_LED_PIN,LOW);
+    unsigned long totalTime = (data.brewTimerSeconds + data.preinfusionTimerSeconds)*SECOND;
     if (sleep) display.sleep();
-    else if (brewing) display.realtime(currentTemp, data.temp, data.pressure, String(BREWING_TEXT), brewTimer.remaining()/SECOND);
-    else if (preinfusing) display.realtime(currentTemp, data.temp, data.preinfusionPressure, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND);
+    else if (brewing) display.realtime(currentTemp, data.temp, data.pressure, String(BREWING_TEXT), brewTimer.remaining()/SECOND, totalTime);
+    else if (preinfusing) display.realtime(currentTemp, data.temp, data.preinfusionPressure, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND, totalTime);
     else display.state(data,currentTemp);
   }
 }
