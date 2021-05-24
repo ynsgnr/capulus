@@ -14,6 +14,14 @@
 #define INDICATOR_HEIGHT 62 /* SCREEN_HEIGHT-PAGE_INDICATOR_PADDING*2 */
 #define SECTION_HEIGHT 15 /* (INDICATOR_HEIGHT)/(PAGE_COUNT) */
 
+#define REALTIME_MIN_TEMP 67
+#define REALTIME_MAX_TEMP 113
+#define REALTIME_TEXT_SIZE 1 /* TEXT_SIZE/2 */
+#define REALTIME_GRAPH_HEIGHT 48 /* SCREEN_HEIGHT-REALTIME_TEXT_SIZE*LINE_SIZE*2 */
+#define REALTIME_STATUS_BAR_HEIGHT 16 /* SCREEN_HEIGHT-REALTIME_GRAPH_HEIGHT */
+#define REALTIME_STATUS_BAR_Y REALTIME_GRAPH_HEIGHT
+#define REALTIME_UNIT_TEMP 1 /* (REALTIME_MAX_TEMP-REALTIME_MIN_TEMP)/REALTIME_GRAPH_HEIGHT */
+
 Adafruit_SSD1306 capulus_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 CAPULUS_DISPLAY::CAPULUS_DISPLAY(){
@@ -21,12 +29,25 @@ CAPULUS_DISPLAY::CAPULUS_DISPLAY(){
 }
 
 void CAPULUS_DISPLAY::realtime(float currentTemp, int setTemp, double setpressure, String currentState, unsigned long remainingTime){
-    //TODO add graphs
-    int textSize = TEXT_SIZE/2;
-    capulus_display.clearDisplay();
-    capulus_display.setTextSize(textSize);
+    if (realtimeDrawing){
+        //only refresh status bar since graph data is only kept on OLED memory
+        capulus_display.fillRect(0, REALTIME_STATUS_BAR_Y, SCREEN_WIDTH, REALTIME_STATUS_BAR_HEIGHT, SSD1306_BLACK);
+    }else{
+        capulus_display.clearDisplay();
+        realtimeDrawing = true;
+    }
+
+    //draw set temp line and set temp
+    int y = REALTIME_GRAPH_HEIGHT-REALTIME_UNIT_TEMP*(setTemp-REALTIME_MIN_TEMP);
+    int currentTempSizeX = SCREEN_WIDTH-LINE_SIZE*3;
+    capulus_display.drawLine(0, y, currentTempSizeX, y, SSD1306_WHITE);
+    capulus_display.setTextSize(REALTIME_TEXT_SIZE);
     capulus_display.setTextColor(SSD1306_WHITE);
-    capulus_display.setCursor(0, SCREEN_HEIGHT-textSize*LINE_SIZE*2);
+    capulus_display.setCursor(currentTempSizeX, y-LINE_SIZE/2);
+
+    //draw status bar
+    capulus_display.print(String(setTemp,10));
+    capulus_display.setCursor(0, REALTIME_STATUS_BAR_Y);
     capulus_display.println(currentState);
     capulus_display.print(String(currentTemp, 2));
     capulus_display.print(F(C_TEXT));
@@ -36,10 +57,12 @@ void CAPULUS_DISPLAY::realtime(float currentTemp, int setTemp, double setpressur
     capulus_display.print(F(SEPERATOR));
     capulus_display.print(String(remainingTime, 10));
     capulus_display.println(F(SECONDS_TEXT));
+
     capulus_display.display();
 }
 
 void CAPULUS_DISPLAY::sleep(){
+    realtimeDrawing = false;
     capulus_display.clearDisplay();
     capulus_display.setTextSize(TEXT_SIZE);
     capulus_display.setTextColor(SSD1306_WHITE);
@@ -54,6 +77,7 @@ void CAPULUS_DISPLAY::sleep(){
 }
 
 void CAPULUS_DISPLAY::state(stateData data, float currentTemp){
+    realtimeDrawing = false;
     capulus_display.clearDisplay();
     capulus_display.setTextSize(TEXT_SIZE);
     capulus_display.setTextColor(SSD1306_WHITE);

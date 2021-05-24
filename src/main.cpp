@@ -28,7 +28,7 @@ TIMER preinfusionTimer;
 
 int inputLastRefresh;
 int tempLastRefresh;
-int dsiplayLastRefresh;
+int displayLastRefresh;
 float currentTemp;
 bool brewing = false;
 bool preinfusing = false;
@@ -90,8 +90,8 @@ void loop() {
     if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
     else digitalWrite(HEATER_PIN,LOW);
   }
-  if(now-dsiplayLastRefresh>DISPLAY_INTERVAL){
-    dsiplayLastRefresh+=DISPLAY_INTERVAL;
+  if(now-displayLastRefresh>DISPLAY_INTERVAL){
+    displayLastRefresh+=DISPLAY_INTERVAL;
     int targetTemp = data.temp;
     if (buttonInput.steam) targetTemp = data.steamTemp;
     if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);

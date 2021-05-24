@@ -33,6 +33,9 @@ class CAPULUS_DISPLAY{
         void state(stateData,float);
         void sleep();
         void realtime(float currentTemp, int setTemp, double setpressure, String currentState, unsigned long remainingTime);
+    private:
+        bool realtimeDrawing=false;
+        int realtimeLastRefresh=0;
 };
 
 #endif
