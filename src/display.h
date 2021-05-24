@@ -14,6 +14,7 @@
 #define BREW_TIMER_TEXT "brew time"
 #define STEAM_TEMP_TEXT "steam temp"
 #define BAR_TEXT " bar"
+#define C_TEXT " C"
 #define SECONDS_TEXT " s"
 #define SLEEP_TIMER_TEXT "sleep timer"
 #define MINUTES_TEXT " m"
@@ -31,7 +32,7 @@ class CAPULUS_DISPLAY{
         CAPULUS_DISPLAY();
         void state(stateData,float);
         void sleep();
-        void realtime(stateData data, float currentTemp, float pressure, String currentState, unsigned long  remainingTime);
+        void realtime(float currentTemp, int setTemp, double setpressure, String currentState, unsigned long remainingTime);
 };
 
 #endif

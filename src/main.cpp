@@ -15,7 +15,7 @@
 #define DISPLAY_INTERVAL 100
 #define PUMP_PRESSURE 15
 #define MAX_PWM 1023
-#define TEMP_RANGE 2
+#define TEMP_RANGE 1
 
 CAPULUS_STATE state;
 CAPULUS_BUTTON_INPUT buttons;
@@ -97,12 +97,8 @@ void loop() {
     if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
     else digitalWrite(READY_LED_PIN,LOW);
     if (sleep) display.sleep();
-    else if (brewing) display.realtime(data, currentTemp, data.pressure, String(BREWING_TEXT), brewTimer.remaining()/SECOND);
-    else if (preinfusing) display.realtime(data, currentTemp, data.preinfusionPressure, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND);
+    else if (brewing) display.realtime(currentTemp, data.temp, data.pressure, String(BREWING_TEXT), brewTimer.remaining()/SECOND);
+    else if (preinfusing) display.realtime(currentTemp, data.temp, data.preinfusionPressure, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND);
     else display.state(data,currentTemp);
   }
 }
-
-//TODO
-// auto pid config
-// advanced brewing view with temp graph, pressure, preinfusion/brew and remaining time

@@ -7,6 +7,7 @@
 #define SCREEN_ADDRESS 0x3C
 
 #define TEXT_SIZE 2
+#define LINE_SIZE 8
 #define PAGE_COUNT 4
 #define PAGE_INDICATOR_SIZE 4
 #define PAGE_INDICATOR_PADDING 1
@@ -19,19 +20,22 @@ CAPULUS_DISPLAY::CAPULUS_DISPLAY(){
     capulus_display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
-void CAPULUS_DISPLAY::realtime(stateData data, float currentTemp, float pressure, String currentState, unsigned long remainingTime){
+void CAPULUS_DISPLAY::realtime(float currentTemp, int setTemp, double setpressure, String currentState, unsigned long remainingTime){
+    //TODO add graphs
+    int textSize = TEXT_SIZE/2;
     capulus_display.clearDisplay();
-    capulus_display.setTextSize(TEXT_SIZE/2);
+    capulus_display.setTextSize(textSize);
     capulus_display.setTextColor(SSD1306_WHITE);
-    capulus_display.setCursor(0, 0);
+    capulus_display.setCursor(0, SCREEN_HEIGHT-textSize*LINE_SIZE*2);
     capulus_display.println(currentState);
-    capulus_display.println(String(currentTemp, 2));
-    capulus_display.println(String(pressure, 2));
-    if (remainingTime==0) capulus_display.println(F(FINISHED_TEXT));
-    else{
-        capulus_display.print(String(remainingTime, 10));
-        capulus_display.println(F(SECONDS_TEXT));
-    }
+    capulus_display.print(String(currentTemp, 2));
+    capulus_display.print(F(C_TEXT));
+    capulus_display.print(F(SEPERATOR));
+    capulus_display.print(String(setpressure, 2));
+    capulus_display.print(F(BAR_TEXT));
+    capulus_display.print(F(SEPERATOR));
+    capulus_display.print(String(remainingTime, 10));
+    capulus_display.println(F(SECONDS_TEXT));
     capulus_display.display();
 }
 
