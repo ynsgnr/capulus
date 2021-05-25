@@ -148,6 +148,10 @@ void CAPULUS_STATE::input(inputData input){
 }
 
 stateData CAPULUS_STATE::data(){return sdata;}
+void CAPULUS_STATE::set(stateData d){
+    sdata=d;
+    persist_save();
+}
 
 void CAPULUS_STATE::setTunings(double kp, double ki, double kd){
     sdata.kp = kp;

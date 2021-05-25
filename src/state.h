@@ -42,6 +42,7 @@ public:
     void input(inputData);
     void setTunings(double ki,double kp,double kd);
     stateData data();
+    void set(stateData);
 private:
     void persist_load();
     void persist_save();
