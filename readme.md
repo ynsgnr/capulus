@@ -45,7 +45,7 @@ There are 5 input buttons:
     - Brew - the brewing and pump button on the machine itself
 Three of these buttons (minus,option,plus) connected with analog input and voltage divider circuits. I use six 10k resistors to build the circiut but other values are also possible. Only thing required is to have different values for each button connection. Then MINUSVAL, OPTIONSVAL and PLUSVAL can be modified for the new resistor values. You can calculate it using the formulas in the input.buttons.cpp but best way to do it is by experimenting. You can build a simple code that reads analog input and prints and click on the buttons one by one to set their values. This is required since the components required by this project uses up all the pins on nodemcu v3. If you are using a board with more pins you can connect them directly with digital input and modify input.buttons.cpp accordingly.
 
-![Input Button Circuit](doc\button_circuit.jpg)
+![Input Button Circuit](doc/button_circuit.jpg)
 
 This image resourced from [codebender_cc at instructables](https://www.instructables.com/How-to-Multiple-Buttons-on-1-Analog-Pin-Arduino-Tu/), you can also find more information about this button circuit design there.
 
