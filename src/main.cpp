@@ -49,7 +49,6 @@ stateData data;
 inputData buttonInput;
 
 void setup(){
-  Serial.begin(9600);
   state = CAPULUS_STATE();
   buttons = CAPULUS_BUTTON_INPUT();
   display = CAPULUS_DISPLAY();
