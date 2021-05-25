@@ -33,6 +33,8 @@ The current implementation is separated as user input, state, user output and co
 # Circuits
 I added used pin names based on NodeMCU v3 (esp8266) and I also added cable color for the external connections but of course that changes depending how you implement the circuit so the colors can be ignored. You can change the circuits and pins according to your needs. This page provides more information for which pins to use. Be careful about which ones cause a fail on boot: [thehookup's nodemcu pin document](https://github.com/thehookup/Wireless_MQTT_Doorbell/blob/master/GPIO_Limitations_ESP8266_NodeMCU.jpg) 
 
+![Circuit Diagram](doc/circuit.png)
+
 ## Input buttons
 
 There are 5 input buttons:
