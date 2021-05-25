@@ -13,6 +13,9 @@ public:
     //set those values with setCurrent and setTarget
     //returns if the heater should run or not
     bool signal();
+    //analogSignal - returns the analog signal for heater
+    //can be used with PWM controlled heaters
+    double analogSignal();
     //autotune - autotunes the paramaters for pid
     //signal should be called after each call to this function
     //returns if the autotune should be repeated or not
@@ -21,6 +24,7 @@ public:
     double getKp();
     double getKi();
     double getKd();
+    void setTunings(double kp, double ki, double kd);
 };
 
 #endif

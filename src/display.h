@@ -40,7 +40,7 @@ class CAPULUS_DISPLAY{
         void state(stateData,float);
         // sleep - displays sleep message
         void sleep();
-        // sleep - displays autotune message
+        // autotune - displays autotune message
         void autotune();
         // realtime - displays status and temp graph over sample period, historic data is kept on OLED memory
         // this function expects setTemp and totalTime not to be changed during a realtime display session

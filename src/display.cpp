@@ -92,9 +92,8 @@ void CAPULUS_DISPLAY::sleep(){
     capulus_display.setTextColor(SSD1306_WHITE);
     capulus_display.setCursor(0, 0);
     capulus_display.println(F(TIMEOUT_TEXT));
+    capulus_display.println(F(""));
     capulus_display.setTextSize(TEXT_SIZE/2);
-    capulus_display.println(F(""));
-    capulus_display.println(F(""));
     capulus_display.println(F(RESTART_TEXT_1));
     capulus_display.println(F(RESTART_TEXT_2));
     capulus_display.display();
@@ -107,9 +106,8 @@ void CAPULUS_DISPLAY::autotune(){
     capulus_display.setTextColor(SSD1306_WHITE);
     capulus_display.setCursor(0, 0);
     capulus_display.println(F(CALIBRATE_TEXT));
+    capulus_display.println(F(""));
     capulus_display.setTextSize(TEXT_SIZE/2);
-    capulus_display.println(F(""));
-    capulus_display.println(F(""));
     capulus_display.println(F(CALIBRATE_CANCEL_TEXT_1));
     capulus_display.println(F(CALIBRATE_CANCEL_TEXT_2));
     capulus_display.display();

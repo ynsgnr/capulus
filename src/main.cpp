@@ -36,9 +36,9 @@ TIMER sleepTimer;
 TIMER brewTimer;
 TIMER preinfusionTimer;
 
-int inputLastRefresh;
-int tempLastRefresh;
-int displayLastRefresh;
+unsigned long inputLastRefresh;
+unsigned long tempLastRefresh;
+unsigned long displayLastRefresh;
 float currentTemp;
 bool brewing = false;
 bool preinfusing = false;
@@ -63,24 +63,33 @@ void loop() {
     if((now-tempLastRefresh)>TEMP_INTERVAL){
       tempLastRefresh+=TEMP_INTERVAL;
 
+      bool finished = false;
       buttonInput = buttons.read();
-      if (buttonInput.any) {
-        state.setTunings(pid.getKp(),pid.getKi(),pid.getKd());
-        data = state.data();
-        return;
+      if (!buttonInput.any) {
+        display.autotune();
+        analogWrite(PUMP_PWM_PIN,data.pressure/PUMP_PRESSURE*MAX_PWM);
+        
+        currentTemp = read_temp();
+        pid.setCurrent(double(currentTemp));
+        if (pid.autotune(ATUNE_NOISE, ATUNE_STEP, ATUNE_LOOKBACK, ATUNE_START)){
+          if (pid.signal()) digitalWrite(HEATER_PIN,HIGH);
+          else digitalWrite(HEATER_PIN,LOW);
+        }else{
+          finished = true;
+        }
+      }else{
+        finished = true;
       }
 
-      display.autotune();
-      analogWrite(PUMP_PWM_PIN,data.pressure/PUMP_PRESSURE*MAX_PWM);
-      
-      currentTemp = read_temp();
-      pid.setCurrent(double(currentTemp));
-      if (!pid.autotune(ATUNE_NOISE, ATUNE_STEP, ATUNE_LOOKBACK, ATUNE_START)){
+      if (finished){
         state.setTunings(pid.getKp(),pid.getKi(),pid.getKd());
         data = state.data();
+        delay(1000);
+        now = millis();
+        inputLastRefresh = now;
+        displayLastRefresh = now;
+        tempLastRefresh = now;
       }
-      if (pid.signal()) digitalWrite(HEATER_PIN,HIGH);
-      else digitalWrite(HEATER_PIN,LOW);
     }
     return;
   }
@@ -112,6 +121,7 @@ void loop() {
       //only change state when not brewing
       state.input(buttonInput);
       data = state.data();
+      pid.setTunings(data.kp, data.ki, data.kd);
       if (buttonInput.steam) pid.setTarget(data.steamTemp);
       else pid.setTarget(data.temp);
       brewTimer.setTimeOut(data.brewTimerSeconds*SECOND);
@@ -126,7 +136,7 @@ void loop() {
     pid.setCurrent(double(currentTemp));
     sleep = sleepTimer.timedOut();
     if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
-    else digitalWrite(HEATER_PIN,LOW);
+    else digitalWrite(HEATER_PIN,LOW) ;
   }
   if((now-displayLastRefresh)>DISPLAY_INTERVAL){
     displayLastRefresh+=DISPLAY_INTERVAL;

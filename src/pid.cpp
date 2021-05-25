@@ -24,8 +24,13 @@ void CAPULUS_PID::setTarget(double temp){setpoint = temp;}
 bool CAPULUS_PID::signal(){
   capulusPID.Compute();
   unsigned long now = millis();
-  if (now - windowStartTime > windowSize) windowStartTime += windowSize;
+  windowStartTime += ((now-windowStartTime)/windowSize)*windowSize;
   return output > (now - windowStartTime);
+}
+
+double CAPULUS_PID::analogSignal(){
+  capulusPID.Compute();
+  return output;
 }
 
 bool CAPULUS_PID::autotune(double noise, double step, int lookBack, double startValue){
@@ -47,3 +52,6 @@ bool CAPULUS_PID::autotune(double noise, double step, int lookBack, double start
 double CAPULUS_PID::getKp(){return capulusPID.GetKp();}
 double CAPULUS_PID::getKi(){return capulusPID.GetKi();}
 double CAPULUS_PID::getKd(){return capulusPID.GetKd();}
+void CAPULUS_PID::setTunings(double kp, double ki, double kd){
+  capulusPID.SetTunings(kp,ki,kd);
+}
