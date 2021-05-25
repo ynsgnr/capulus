@@ -28,16 +28,11 @@ Calculating Total R: (1/R1+1/R2+1/R3...)^-1
 #define BREWPIN 1 //TX - brown
 
 
-CAPULUS_BUTTON_INPUT::CAPULUS_BUTTON_INPUT(){ 
+CAPULUS_BUTTON_INPUT::CAPULUS_BUTTON_INPUT(){
     pinMode(STEAMPIN, INPUT);
     digitalWrite(STEAMPIN, HIGH);
     pinMode(BREWPIN, INPUT);
     digitalWrite(BREWPIN, HIGH);
-    result.minus = false;
-    result.option = false;
-    result.plus = false;
-    result.steam = false;
-    result.brew = false;
 }
 
 inputData CAPULUS_BUTTON_INPUT::read(){
@@ -67,21 +62,17 @@ inputData CAPULUS_BUTTON_INPUT::read(){
         result.any = result.any || !result.steam;
         result.steam = true;
         digitalWrite(STEAMPIN, HIGH);
-        digitalWrite(0, HIGH);
     }else{
         result.any = result.any || result.steam;
         result.steam = false;
-        digitalWrite(0, LOW);
     }
     if (digitalRead(BREWPIN)==LOW){
         result.any = result.any || !result.brew;
         result.brew = true;
         digitalWrite(BREWPIN, HIGH);
-        digitalWrite(0, HIGH);
     }else{
         result.any = result.any || result.brew;
         result.brew = false;
-        digitalWrite(0, LOW);
     }
     return result;
 }

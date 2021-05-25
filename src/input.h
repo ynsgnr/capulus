@@ -2,11 +2,11 @@
 #define INPUT_H
 
 struct inputData {
-    bool minus;
-    bool option;
-    bool plus;
-    bool steam;
-    bool brew;
-    bool any;
+    bool minus = false;
+    bool option = false;
+    bool plus = false;
+    bool steam = false;
+    bool brew = false;
+    bool any = false;
 };
 #endif
