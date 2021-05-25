@@ -5,16 +5,17 @@
 #include <input.buttons.h>
 #include <pid.h>
 #include <timer.h>
+#include <RBDdimmer.h>
 
-#define HEATER_PIN 16 //D0 - blue
+#define HEATER_PIN 2 //D4 - yellow
 #define PUMP_PWM_PIN 14 //D5 - orange
+#define PUMP_ZX_PIN 16 //D0 - blue
 #define READY_LED_PIN 0 //D3 - green
 
 #define INPUT_INTERVAL 250
 #define TEMP_INTERVAL 300
 #define DISPLAY_INTERVAL 100
 #define PUMP_PRESSURE 15
-#define MAX_PWM 1023
 #define TEMP_RANGE 1
 
 //pid paramaters
@@ -31,6 +32,7 @@ CAPULUS_STATE state;
 CAPULUS_BUTTON_INPUT buttons;
 CAPULUS_DISPLAY display;
 CAPULUS_PID pid(TEMP_INTERVAL,PID_KP,PID_KI,PID_KD);
+dimmerLamp pump(PUMP_PWM_PIN,PUMP_ZX_PIN);
 
 TIMER sleepTimer;
 TIMER brewTimer;
@@ -47,6 +49,7 @@ stateData data;
 inputData buttonInput;
 
 void setup(){
+  Serial.begin(9600);
   state = CAPULUS_STATE();
   buttons = CAPULUS_BUTTON_INPUT();
   display = CAPULUS_DISPLAY();
@@ -55,6 +58,7 @@ void setup(){
   pinMode(HEATER_PIN,OUTPUT);
   pinMode(PUMP_PWM_PIN,OUTPUT);
   pinMode(READY_LED_PIN,OUTPUT);
+  pump.begin(NORMAL_MODE, OFF);
 }
 
 void loop() {
@@ -67,8 +71,7 @@ void loop() {
       buttonInput = buttons.read();
       if (!buttonInput.any) {
         display.autotune();
-        analogWrite(PUMP_PWM_PIN,data.pressure/PUMP_PRESSURE*MAX_PWM);
-        
+        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 100, 0));
         currentTemp = read_temp();
         pid.setCurrent(double(currentTemp));
         if (pid.autotune(ATUNE_NOISE, ATUNE_STEP, ATUNE_LOOKBACK, ATUNE_START)){
@@ -101,23 +104,23 @@ void loop() {
 
     if (buttonInput.brew && !sleep){
       if (buttonInput.steam){
-        analogWrite(PUMP_PWM_PIN,MAX_PWM);
+        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 100, 0));
       }else{
         if (!preinfusing) preinfusionTimer.start();
         preinfusing = true;
         if (data.preinfusionTimerSeconds>0 && !preinfusionTimer.timedOut()){
-          analogWrite(PUMP_PWM_PIN,data.preinfusionPressure/PUMP_PRESSURE*MAX_PWM);
+        pump.setPower(map(data.preinfusionPressure, 0, PUMP_PRESSURE, 100, 0));
         }else{
           if (!brewing) brewTimer.start();
           brewing = true;
-          if (brewTimer.timedOut()) analogWrite(PUMP_PWM_PIN,0);
-          else analogWrite(PUMP_PWM_PIN,data.pressure/PUMP_PRESSURE*MAX_PWM);
+          if (brewTimer.timedOut()) pump.setPower(0);
+          else pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 100, 0));
         }
       }
     }else{
       preinfusing = false;
       brewing = false;
-      analogWrite(PUMP_PWM_PIN,0);
+      pump.setPower(0);
       //only change state when not brewing
       state.input(buttonInput);
       data = state.data();
