@@ -58,7 +58,7 @@ void setup(){
   sleepTimer.start();
   pinMode(HEATER_PIN,OUTPUT);
   pinMode(READY_LED_PIN,OUTPUT);
-  pump.begin(NORMAL_MODE, ON);
+  pump.begin(NORMAL_MODE, OFF);
 }
 
 void loop() {
@@ -105,22 +105,31 @@ void loop() {
     if (buttonInput.brew && !sleep){
       if (buttonInput.steam){
         pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 100, 0));
+        pump.setState(ON);
       }else{
         if (!preinfusing) preinfusionTimer.start();
         preinfusing = true;
         if (data.preinfusionTimerSeconds>0 && !preinfusionTimer.timedOut()){
         pump.setPower(map(data.preinfusionPressure, 0, PUMP_PRESSURE, 100, 0));
+        pump.setState(ON);
         }else{
           if (!brewing) brewTimer.start();
           brewing = true;
-          if (brewTimer.timedOut()) pump.setPower(0);
-          else pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 100, 0));
+          if (brewTimer.timedOut()){
+            pump.setPower(0);
+            pump.setState(OFF);
+          }
+          else{
+            pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 100, 0));
+            pump.setState(ON);
+          }
         }
       }
     }else{
       preinfusing = false;
       brewing = false;
       pump.setPower(0);
+      pump.setState(OFF);
       //only change state when not brewing
       state.input(buttonInput);
       data = state.data();
