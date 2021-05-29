@@ -11,6 +11,7 @@
 #define PUMP_PWM_PIN 14 //D5 - orange
 #define PUMP_ZX_PIN 16 //D0 - blue
 #define READY_LED_PIN 0 //D3 - green
+#define READY_LED_BRIGHTNESS 341
 
 #define INPUT_INTERVAL 250
 #define TEMP_INTERVAL 300
@@ -145,8 +146,8 @@ void loop() {
 
     int targetTemp = data.temp;
     if (buttonInput.steam) targetTemp = data.steamTemp;
-    if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
-    else digitalWrite(READY_LED_PIN,LOW);
+    if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) analogWrite(READY_LED_PIN,READY_LED_BRIGHTNESS);
+    else analogWrite(READY_LED_PIN,0);
     
     unsigned long totalTime = (data.brewTimerSeconds + data.preinfusionTimerSeconds)*SECOND;
     if (sleep) display.sleep();
