@@ -9,7 +9,7 @@
 
 #define HEATER_PIN 15 //D8 - yellow
 #define PUMP_PWM_PIN 14 //D5 - orange
-#define PUMP_ZX_PIN 16 //D0 - blue
+#define PUMP_ZX_PIN 13 //D7 - blue
 #define READY_LED_PIN 0 //D3 - green
 #define READY_LED_BRIGHTNESS 341
 
@@ -17,15 +17,15 @@
 #define TEMP_INTERVAL 300
 #define DISPLAY_INTERVAL 100
 #define PUMP_PRESSURE 15
-#define TEMP_RANGE 1
+#define TEMP_RANGE 3
 
 //pid paramaters
 #define PID_KP 4
 #define PID_KI 60
 #define PID_KD 15
 //autotune related stuff
-#define ATUNE_STEP 5
-#define ATUNE_NOISE 0.5
+#define ATUNE_STEP 10
+#define ATUNE_NOISE TEMP_RANGE
 #define ATUNE_START 80
 #define ATUNE_LOOKBACK 2
 
@@ -54,11 +54,11 @@ void setup(){
   buttons = CAPULUS_BUTTON_INPUT();
   display = CAPULUS_DISPLAY();
   pid = CAPULUS_PID(TEMP_INTERVAL,PID_KP,PID_KI,PID_KD);
+  pump = dimmerLamp(PUMP_PWM_PIN,PUMP_ZX_PIN);
   sleepTimer.start();
   pinMode(HEATER_PIN,OUTPUT);
-  pinMode(PUMP_PWM_PIN,OUTPUT);
   pinMode(READY_LED_PIN,OUTPUT);
-  pump.begin(NORMAL_MODE, OFF);
+  pump.begin(NORMAL_MODE, ON);
 }
 
 void loop() {
@@ -71,7 +71,7 @@ void loop() {
       buttonInput = buttons.read();
       if (!buttonInput.any) {
         display.autotune();
-        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 100, 0));
+        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 0, 100));
         currentTemp = read_temp();
         pid.setCurrent(double(currentTemp));
         if (pid.autotune(ATUNE_NOISE, ATUNE_STEP, ATUNE_LOOKBACK, ATUNE_START)){

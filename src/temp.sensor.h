@@ -4,7 +4,7 @@
 #include <max6675.h>
 
 #define ktcSO 2 //D4
-#define ktcCS 13 //D7
+#define ktcCS 16 //D0
 #define ktcCLK 12 //D6
 
 MAX6675 ktc(ktcCLK, ktcCS, ktcSO);

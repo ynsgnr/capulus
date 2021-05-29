@@ -35,16 +35,17 @@ double CAPULUS_PID::analogSignal(){
 
 bool CAPULUS_PID::autotune(double noise, double step, int lookBack, double startValue){
   if(!tuning){
+    tuning = true;
     output=startValue;
     aTune.SetNoiseBand(noise);
     aTune.SetOutputStep(step);
     aTune.SetLookbackSec(lookBack);
-    tuning = true;
+    aTune.SetControlType(1); //set to PID
   }
   if(aTune.Runtime()!=0){
+    tuning = false;
     //we're done, set the tuning parameters
     capulusPID.SetTunings(aTune.GetKp(),aTune.GetKi(),aTune.GetKd());
-    tuning = false;
   }
   return tuning;
 }
