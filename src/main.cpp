@@ -7,7 +7,7 @@
 #include <timer.h>
 #include <RBDdimmer.h>
 
-#define HEATER_PIN 2 //D4 - yellow
+#define HEATER_PIN 15 //D8 - yellow
 #define PUMP_PWM_PIN 14 //D5 - orange
 #define PUMP_ZX_PIN 16 //D0 - blue
 #define READY_LED_PIN 0 //D3 - green

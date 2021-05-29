@@ -3,7 +3,7 @@
 
 #include <max6675.h>
 
-#define ktcSO 15 //D8 
+#define ktcSO 2 //D4
 #define ktcCS 13 //D7
 #define ktcCLK 12 //D6
 
