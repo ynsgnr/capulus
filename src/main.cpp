@@ -19,9 +19,9 @@
 #define TEMP_RANGE 1
 
 //pid paramaters
-#define PID_KP 2
-#define PID_KI 5
-#define PID_KD 1
+#define PID_KP 4
+#define PID_KI 60
+#define PID_KD 15
 //autotune related stuff
 #define ATUNE_STEP 5
 #define ATUNE_NOISE 0.5
