@@ -71,7 +71,6 @@ void loop() {
       buttonInput = buttons.read();
       if (!buttonInput.any) {
         display.autotune();
-        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 0, 100));
         currentTemp = read_temp();
         pid.setCurrent(double(currentTemp));
         if (pid.autotune(ATUNE_NOISE, ATUNE_STEP, ATUNE_LOOKBACK, ATUNE_START)){
