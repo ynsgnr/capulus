@@ -30,6 +30,7 @@ The current implementation is separated as user input, state, user output and co
  - 3D printed boxes and mounting for two different parts. Inner parts consisting the relay, power source and dimmer. And outer parts consisting the controller, screen, buttons.
  - Circuit design for outside unit to make it more compact
  - Fix boot failure on boot with brew button enabled. (This might be impossible since I run out of pins to use and this pun causes boot fail when pulled to low)
+ - Find a better way to handle solenoid valve
 
 # Circuits
 
@@ -53,6 +54,7 @@ If you want to build an enclosure for buttons and screen as well, please include
 
 ## Dimmer Module and Relays
 Heater is connected with a relay, I used SSR-40DA on D8 (pin 15).
+For some reason the relay I got was marked in reverse (+ instead of - and minus instead +), or I did something wrong (I used + as ground hope thats correct). I did not reflect that to circuit diagrams but if **your relay doesn't work correctly check which terminal is ground in a separate setup**.
 Solenoid valve is also connected with a relay, I used SSR-40DA with a button logic, basically i copied to same logic classic design has in high voltage to the low voltage.
 Pump is connected with [robotdyn dimmer module](https://robotdyn.com/ac-light-dimmer-module-1-channel-3-3v-5v-logic-ac-50-60hz-220v-110v-1.html) on D5 (pin 14) for PWM and on D7 (pin 13) for zero-cross detection (z-c).
 
@@ -76,8 +78,14 @@ I added to the source code the pin names based on NodeMCU v3 (esp8266) and I als
 
 Technically you can change which pins to use and make it so closer pins serve the same component. But its definitely not recommended and changing pin layout randomly can cause boot fails or component fails. I had to do a lot of trial and error to make sure everything works. If you can use a pin extender it might gave you more freedom.
 
-This is due to ESP8266's design, not every pin has the same capability and pulling some pins to low or high can cause boot fails, and not every pin can be used for interrupts and interrupts used by the dimmer module to function. This page provides more information for which pins to use: [thehookup's nodemcu pin document](https://github.com/thehookup/Wireless_MQTT_Doorbell/blob/master/GPIO_Limitations_ESP8266_NodeMCU.jpg) 
- 
+This is due to ESP8266's design, not every pin has the same capability and pulling some pins to low or high can cause boot fails, and not every pin can be used for interrupts and interrupts used by the dimmer module to function. This page provides more information for which pins to use: [thehookup's nodemcu pin document](https://github.com/thehookup/Wireless_MQTT_Doorbell/blob/master/GPIO_Limitations_ESP8266_NodeMCU.jpg)
+
+## Controlling the Solenoid Valve
+Since I switched the button logic from high voltage to 3.33v logic, and the button logic was also controlling the pump and the solenoid valve I needed to control both of these components now. Pump was already required since I wanted to use a dimmer to control pressure. But solenoid valve was a bit of a challenge since I already run out of pins on nodemcu v3. I can implement brew button in high voltage and use its output as Lin to dimmmer module so it can also control solenoid valve as it used to. But this solution doesn't allow me to detect when the brewing starts, I need to trigger the timers when brewing starts. Let me know if there is a solution I can not see here.
+
+Solenoid Valve supposed to be enabled with 220v only when the pump is running or the steam mode is not enabled for my coffee machine (gaggia classic). The steam button is connected to two different independent switches that runs in reverse (or not logic). When you press the steam button, you connect the terminals for switch 1 and disconnect the terminals for switch 2. Switch 1 used to be connected to steam temperature breaker, now its connected to nodemcu. And switch 2 is connected to solenoid valve on one end, and the brew button on the other end. So when you run the pump without steam mode, solenoid valve enables. And if you shut down the pipe solenoid valve disables. When you run the pump in steam mode (steam button pressed and switch 2 is disconnected), the solenoid valve stays disabled.
+
+I have solved by implementing the old connections it had in 3.33v logic and then use a second relay to convert 3.33 signal to high voltage. You can see it in circuit diagram.
 
 # Enclosure
 I have used [this](https://www.aliexpress.com/item/1005001598487212.html?spm=a2g0s.9042311.0.0.1c5e4c4dZsRFiI) hobby box and a dremel to build a box to hold all the electronic. If you are going to use the same method order multiple boxes to perfect your hand on using the dremel. You can prefer to only have the screen and buttons outside and keep everything mounted inside the machine as well, but this design allows modularity and development separated from the machine. I designed a mock coffee machines with three leds and two buttons to be able to test it. One led turns on if the heater is on, another one turns on if the pump is on and brightness changes thanks to PWM representing pump power. And the last led acts as the indicator led. The two buttons acts like the steam and brew button. The box I used was a bit small as well so I had to implement 90 degree angled short connectors to be able to keep everything modular. I cut off the plastic clip holding the plastic housing around the regular connectors, pull out the plastic housing and bend the pin. Then I cut the plastic housing to a quarter. And hot glued that to connector.
