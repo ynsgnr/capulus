@@ -105,13 +105,13 @@ void loop() {
 
     if (buttonInput.brew && !sleep){
       if (buttonInput.steam){
-        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, MAX_PUMP_PWR, MIN_PUMP_PWR));
+        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, MIN_PUMP_PWR, MAX_PUMP_PWR));
         pump.setState(ON);
       }else{
         if (!preinfusing) preinfusionTimer.start();
         preinfusing = true;
         if (data.preinfusionTimerSeconds>0 && !preinfusionTimer.timedOut()){
-        pump.setPower(map(data.preinfusionPressure, 0, PUMP_PRESSURE, MAX_PUMP_PWR, MIN_PUMP_PWR));
+        pump.setPower(map(data.preinfusionPressure, 0, PUMP_PRESSURE, MIN_PUMP_PWR, MAX_PUMP_PWR));
         pump.setState(ON);
         }else{
           if (!brewing) brewTimer.start();
@@ -120,7 +120,7 @@ void loop() {
             pump.setState(OFF);
           }
           else{
-            pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, MAX_PUMP_PWR, MIN_PUMP_PWR));
+            pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, MIN_PUMP_PWR, MAX_PUMP_PWR));
             pump.setState(ON);
           }
         }
