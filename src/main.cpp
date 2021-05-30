@@ -18,13 +18,14 @@
 #define INPUT_INTERVAL 250
 #define TEMP_INTERVAL 300
 #define DISPLAY_INTERVAL 100
+#define PID_INTERVAL 400
 #define PUMP_PRESSURE 15
 #define TEMP_RANGE 3
 
 //pid paramaters
 #define PID_KP 4
-#define PID_KI 60
-#define PID_KD 15
+#define PID_KI 2
+#define PID_KD 1
 //autotune related stuff
 #define ATUNE_STEP 10
 #define ATUNE_NOISE TEMP_RANGE
@@ -44,7 +45,9 @@ TIMER preinfusionTimer;
 unsigned long inputLastRefresh;
 unsigned long tempLastRefresh;
 unsigned long displayLastRefresh;
+unsigned long pidLastRefresh;
 float currentTemp;
+int targetTemp;
 bool brewing = false;
 bool preinfusing = false;
 bool sleep = false;
@@ -102,6 +105,8 @@ void loop() {
 
     buttonInput = buttons.read();
     if (buttonInput.any) sleepTimer.start();
+    targetTemp = data.temp;
+    if (buttonInput.steam) targetTemp = data.steamTemp;
 
     if (buttonInput.brew && !sleep){
       if (buttonInput.steam){
@@ -146,14 +151,10 @@ void loop() {
     currentTemp = read_temp();
     pid.setCurrent(double(currentTemp));
     sleep = sleepTimer.timedOut();
-    if (pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
-    else digitalWrite(HEATER_PIN,LOW) ;
   }
   if((now-displayLastRefresh)>DISPLAY_INTERVAL){
     displayLastRefresh+=DISPLAY_INTERVAL;
 
-    int targetTemp = data.temp;
-    if (buttonInput.steam) targetTemp = data.steamTemp;
     if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) analogWrite(READY_LED_PIN,READY_LED_BRIGHTNESS);
     else analogWrite(READY_LED_PIN,0);
     
@@ -162,5 +163,10 @@ void loop() {
     else if (brewing) display.realtime(currentTemp, data.temp, data.pressure, String(BREWING_TEXT), brewTimer.remaining()/SECOND, totalTime);
     else if (preinfusing) display.realtime(currentTemp, data.temp, data.preinfusionPressure, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND, totalTime);
     else display.state(data,currentTemp);
+  }
+  if((now-pidLastRefresh)>PID_INTERVAL){
+    pidLastRefresh+=PID_INTERVAL;
+    if (currentTemp<targetTemp && pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
+    else digitalWrite(HEATER_PIN,LOW);
   }
 }
