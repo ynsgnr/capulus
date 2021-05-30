@@ -29,9 +29,9 @@ The current implementation is separated as user input, state, user output and co
  - better architecture for different parts in main.cpp (calibrate,input,temp control,display)
  - 3D printed boxes and mounting for two different parts. Inner parts consisting the relay, power source and dimmer. And outer parts consisting the controller, screen, buttons.
  - Circuit design for outside unit to make it more compact
+ - Fix boot failure on boot with brew button enabled. (This might be impossible since I run out of pins to use and this pun causes boot fail when pulled to low)
 
 # Circuits
-I added used pin names based on NodeMCU v3 (esp8266) and I also added cable color for the external connections but of course that changes depending how you implement the circuit so the colors can be ignored. You can change the circuits and pins according to your needs. This page provides more information for which pins to use. Be careful about which ones cause a fail on boot: [thehookup's nodemcu pin document](https://github.com/thehookup/Wireless_MQTT_Doorbell/blob/master/GPIO_Limitations_ESP8266_NodeMCU.jpg) 
 
 ![Circuit Diagram](doc/circuit.png)
 
@@ -52,13 +52,14 @@ This image resourced from [codebender_cc at instructables](https://www.instructa
 If you want to build an enclosure for buttons and screen as well, please include back support for the buttons otherwise with the force applied the buttons can shift. You can see my crappy back support (two hot glued plastic sticks that reaches to the end of the box for support) in the picture:
 
 ## Dimmer Module and Relays
-Heater is connected with a relay, I used SSR-40DA on D4 (pin 2).
-Pump is connected with [robotdyn dimmer module](https://robotdyn.com/ac-light-dimmer-module-1-channel-3-3v-5v-logic-ac-50-60hz-220v-110v-1.html) on D5 (pin 14) for PWM and on D0 (pin 16) for zero-cross detection (z-c).
+Heater is connected with a relay, I used SSR-40DA on D8 (pin 15).
+Solenoid valve is also connected with a relay, I used SSR-40DA with a button logic, basically i copied to same logic classic design has in high voltage to the low voltage.
+Pump is connected with [robotdyn dimmer module](https://robotdyn.com/ac-light-dimmer-module-1-channel-3-3v-5v-logic-ac-50-60hz-220v-110v-1.html) on D5 (pin 14) for PWM and on D7 (pin 13) for zero-cross detection (z-c).
 
 ## Temp Sensor
 I used a m4 threaded thermocouple with MAX6675. Its connected as follows:
-SO: D8 (pin 15) 
-CS: D7 (pin 13)
+SO: D4 (pin 2) 
+CS: D0 (pin 16)
 CLK: D6 (pin 12)
 You can modify temp.sensor.h if you want to change the setup.
 You can find more information on how to wire temp sensor and screen [here](https://www.14core.com/wiring-thermocouple-max6675-on-esp8266-12e-nodemcu/)
@@ -69,6 +70,14 @@ You can find more information on how to wire temp sensor and screen [here](https
 
 ## Power Supply
 I have used [this](https://www.aliexpress.com/item/32787568253.html?spm=a2g0s.9042311.0.0.7f184c4dnU5TtA) power supply since its cheap and compact. If you are not good with soldering I dont recommend this one since it requires to solder high voltage and low voltage cables.
+
+## About Pins - Not All Pins Are Equal
+I added to the source code the pin names based on NodeMCU v3 (esp8266) and I also added cable color for the external connections but of course that changes depending how you implement the circuit so the colors can be ignored.
+
+Technically you can change which pins to use and make it so closer pins serve the same component. But its definitely not recommended and changing pin layout randomly can cause boot fails or component fails. I had to do a lot of trial and error to make sure everything works. If you can use a pin extender it might gave you more freedom.
+
+This is due to ESP8266's design, not every pin has the same capability and pulling some pins to low or high can cause boot fails, and not every pin can be used for interrupts and interrupts used by the dimmer module to function. This page provides more information for which pins to use: [thehookup's nodemcu pin document](https://github.com/thehookup/Wireless_MQTT_Doorbell/blob/master/GPIO_Limitations_ESP8266_NodeMCU.jpg) 
+ 
 
 # Enclosure
 I have used [this](https://www.aliexpress.com/item/1005001598487212.html?spm=a2g0s.9042311.0.0.1c5e4c4dZsRFiI) hobby box and a dremel to build a box to hold all the electronic. If you are going to use the same method order multiple boxes to perfect your hand on using the dremel. You can prefer to only have the screen and buttons outside and keep everything mounted inside the machine as well, but this design allows modularity and development separated from the machine. I designed a mock coffee machines with three leds and two buttons to be able to test it. One led turns on if the heater is on, another one turns on if the pump is on and brightness changes thanks to PWM representing pump power. And the last led acts as the indicator led. The two buttons acts like the steam and brew button. The box I used was a bit small as well so I had to implement 90 degree angled short connectors to be able to keep everything modular. I cut off the plastic clip holding the plastic housing around the regular connectors, pull out the plastic housing and bend the pin. Then I cut the plastic housing to a quarter. And hot glued that to connector.
