@@ -10,6 +10,8 @@
 #define HEATER_PIN 15 //D8 - yellow
 #define PUMP_PWM_PIN 14 //D5 - orange
 #define PUMP_ZX_PIN 13 //D7 - blue
+#define MIN_PUMP_PWR 60
+#define MAX_PUMP_PWR 100
 #define READY_LED_PIN 0 //D3 - green
 #define READY_LED_BRIGHTNESS 341
 
@@ -27,7 +29,7 @@
 #define ATUNE_STEP 10
 #define ATUNE_NOISE TEMP_RANGE
 #define ATUNE_START 80
-#define ATUNE_LOOKBACK 2
+#define ATUNE_LOOKBACK 10
 
 CAPULUS_STATE state;
 CAPULUS_BUTTON_INPUT buttons;
@@ -103,23 +105,22 @@ void loop() {
 
     if (buttonInput.brew && !sleep){
       if (buttonInput.steam){
-        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 100, 0));
+        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, MAX_PUMP_PWR, MIN_PUMP_PWR));
         pump.setState(ON);
       }else{
         if (!preinfusing) preinfusionTimer.start();
         preinfusing = true;
         if (data.preinfusionTimerSeconds>0 && !preinfusionTimer.timedOut()){
-        pump.setPower(map(data.preinfusionPressure, 0, PUMP_PRESSURE, 100, 0));
+        pump.setPower(map(data.preinfusionPressure, 0, PUMP_PRESSURE, MAX_PUMP_PWR, MIN_PUMP_PWR));
         pump.setState(ON);
         }else{
           if (!brewing) brewTimer.start();
           brewing = true;
           if (brewTimer.timedOut()){
-            pump.setPower(0);
             pump.setState(OFF);
           }
           else{
-            pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, 100, 0));
+            pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, MAX_PUMP_PWR, MIN_PUMP_PWR));
             pump.setState(ON);
           }
         }
@@ -127,7 +128,6 @@ void loop() {
     }else{
       preinfusing = false;
       brewing = false;
-      pump.setPower(0);
       pump.setState(OFF);
       //only change state when not brewing
       state.input(buttonInput);
