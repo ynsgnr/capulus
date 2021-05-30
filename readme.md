@@ -1,5 +1,10 @@
 # Capulus - Yet another PID for coffee machines
 
+# Disclaimer
+This project includes high voltage applications and has health, death and destruction of equipment risks. Please check this article if you are not really familiar with high voltage: [Work Safely With High Voltage](https://www.instructables.com/Work-safely-with-high-voltage/).
+
+And please do not use the USB port on the microcontroller at all when you are powering it from somewhere else, it might damage your computer.
+
 # Features
  - PID - temperature control
  - Auto tune for PID - PID values can be tuned automatically 
