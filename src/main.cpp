@@ -8,8 +8,8 @@
 #include <RBDdimmer.h>
 
 #define HEATER_PIN 15 //D8 - yellow
-#define PUMP_PWM_PIN 14 //D5 - orange
-#define PUMP_ZX_PIN 13 //D7 - blue
+#define PUMP_PSM_PIN 14 //D5 - orange
+#define PUMP_ZC_PIN 13 //D7 - blue
 #define MIN_PUMP_PWR 60
 #define MAX_PUMP_PWR 100
 #define READY_LED_PIN 0 //D3 - green
@@ -36,7 +36,7 @@ CAPULUS_STATE state;
 CAPULUS_BUTTON_INPUT buttons;
 CAPULUS_DISPLAY display;
 CAPULUS_PID pid(TEMP_INTERVAL,PID_KP,PID_KI,PID_KD);
-dimmerLamp pump(PUMP_PWM_PIN,PUMP_ZX_PIN);
+dimmerLamp pump(PUMP_PSM_PIN,PUMP_ZC_PIN);
 
 TIMER sleepTimer;
 TIMER brewTimer;
@@ -59,7 +59,6 @@ void setup(){
   buttons = CAPULUS_BUTTON_INPUT();
   display = CAPULUS_DISPLAY();
   pid = CAPULUS_PID(TEMP_INTERVAL,PID_KP,PID_KI,PID_KD);
-  pump = dimmerLamp(PUMP_PWM_PIN,PUMP_ZX_PIN);
   sleepTimer.start();
   pinMode(HEATER_PIN,OUTPUT);
   pinMode(READY_LED_PIN,OUTPUT);
@@ -68,6 +67,7 @@ void setup(){
 
 void loop() {
   auto now = millis();
+  sleep = sleepTimer.timedOut();
   if (data.autotuning){
     if((now-tempLastRefresh)>TEMP_INTERVAL){
       tempLastRefresh+=TEMP_INTERVAL;
@@ -96,6 +96,7 @@ void loop() {
         inputLastRefresh = now;
         displayLastRefresh = now;
         tempLastRefresh = now;
+        pidLastRefresh = now;
       }
     }
     return;
@@ -110,7 +111,7 @@ void loop() {
 
     if (buttonInput.brew && !sleep){
       if (buttonInput.steam){
-        pump.setPower(map(data.pressure, 0, PUMP_PRESSURE, MIN_PUMP_PWR, MAX_PUMP_PWR));
+        pump.setPower(map(PUMP_PRESSURE, 0, PUMP_PRESSURE, MIN_PUMP_PWR, MAX_PUMP_PWR));
         pump.setState(ON);
       }else{
         if (!preinfusing) preinfusionTimer.start();
@@ -150,23 +151,23 @@ void loop() {
 
     currentTemp = read_temp();
     pid.setCurrent(double(currentTemp));
-    sleep = sleepTimer.timedOut();
+  }
+  if((now-pidLastRefresh)>PID_INTERVAL){
+    pidLastRefresh+=PID_INTERVAL;
+    
+    if (currentTemp<targetTemp && pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
+    else digitalWrite(HEATER_PIN,LOW);
   }
   if((now-displayLastRefresh)>DISPLAY_INTERVAL){
     displayLastRefresh+=DISPLAY_INTERVAL;
 
-    if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) analogWrite(READY_LED_PIN,READY_LED_BRIGHTNESS);
-    else analogWrite(READY_LED_PIN,0);
+    if (currentTemp>=targetTemp-TEMP_RANGE && currentTemp<=targetTemp+TEMP_RANGE) digitalWrite(READY_LED_PIN,HIGH);
+    else digitalWrite(READY_LED_PIN,LOW);
     
     unsigned long totalTime = (data.brewTimerSeconds + data.preinfusionTimerSeconds)*SECOND;
     if (sleep) display.sleep();
     else if (brewing) display.realtime(currentTemp, data.temp, data.pressure, String(BREWING_TEXT), brewTimer.remaining()/SECOND, totalTime);
     else if (preinfusing) display.realtime(currentTemp, data.temp, data.preinfusionPressure, String(PREINFING_TEXT), preinfusionTimer.remaining()/SECOND, totalTime);
     else display.state(data,currentTemp);
-  }
-  if((now-pidLastRefresh)>PID_INTERVAL){
-    pidLastRefresh+=PID_INTERVAL;
-    if (currentTemp<targetTemp && pid.signal() && !sleep) digitalWrite(HEATER_PIN,HIGH);
-    else digitalWrite(HEATER_PIN,LOW);
   }
 }
