@@ -24,10 +24,14 @@ And please do not use the USB port on the microcontroller at all when you are po
  - Quality of live improvements - ex: when steam is enabled the cursor moved to the steam temp automatically, current temperature displayed on temperature related elements in the menu
  - Safety - all 240v components lives inside the machine where they are out of touch. There is only 5v max coming outside of the machine.
 
+# Demo
+![demo](doc/demo.gif)
+
 # Software Architecture
 The current implementation is separated as user input, state, user output and coffee machine. Input is read from buttons for now, a web UI/app can be implemented for this part. This input data is given to state to modify state data. State also handles with max/min limits, persistance and its planned to handle profiles as well. User output is currently only the display a web UI can be added in this step as well. Each section of the UI is represented with a function that takes input what to print. And the coffee machine part is implemented in main file to keep everything together and readable.
 
 # Future Improvements
+ - Better PID control, right now its not as good as I want it to be so it requires a bit tuning
  - Profiles - different settings stored on device for different beans/water that can be changed easily
  - wifi/app/cloud support
  - unit tests and integration tests
