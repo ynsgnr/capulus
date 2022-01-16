@@ -11,15 +11,15 @@
 #define SELECT_BREW_TIMER 4
 #define SELECT_STEAM_TEMP 5
 #define SELECT_SLEEP_TIMER 6
-#define SELECT_CALIBRATE 7
-#define INCREASE_SELECTED(selected) (selected+1)%8
+#define INCREASE_SELECTED(selected) (selected + 1) % 7
 
 #define MAX_TEMP 150
 #define MAX_PRESS 15
-#define MAX_BREW_TIME 60 //seconds
+#define MAX_BREW_TIME 60  //seconds
 #define MAX_SLEEP_TIME 30 //minutes
 
-struct stateData{
+struct stateData
+{
     char ssid[32] = "";
     char password[32] = "";
     int temp = 90;
@@ -29,20 +29,17 @@ struct stateData{
     int preinfusionTimerSeconds = 0;
     int sleepTimerMinutes = 5;
     int brewTimerSeconds = 20;
-    int selected=0;
-    bool autotuning=false;
-    double kp;
-    double ki;
-    double kd;
+    int selected = 0;
 };
 
-class CAPULUS_STATE {
+class CAPULUS_STATE
+{
 public:
     CAPULUS_STATE();
     void input(inputData);
-    void setTunings(double ki,double kp,double kd);
     stateData data();
     void set(stateData);
+
 private:
     void persist_load();
     void persist_save();
